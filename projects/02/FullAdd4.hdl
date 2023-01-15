@@ -1,0 +1,15 @@
+/**
+ * Adds two 4-bit values.
+ * The most significant carry bit is ignored.
+ */
+
+CHIP FullAdd4 {
+    IN a[4], b[4], carryin;
+    OUT out[4], carry;
+
+    PARTS:
+	FullAdder(a=a[0],b=b[0],c=carryin,sum=out[0],carry=carry1);
+	FullAdder(a=a[1],b=b[1],c=carry1,sum=out[1],carry=carry2);
+	FullAdder(a=a[2],b=b[2],c=carry2,sum=out[2],carry=carry3);
+	FullAdder(a=a[3],b=b[3],c=carry3,sum=out[3],carry=carry);
+}

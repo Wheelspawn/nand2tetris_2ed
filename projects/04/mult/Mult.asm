@@ -10,3 +10,27 @@
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
 // Put your code here.
+
+// add RAM[0] to RAM[2] RAM[1] times
+@R2 // RAM[2] = 0
+M=0
+@R3 // RAM[3] = 0
+M=0
+(LOOP)
+  @R3
+  D=M
+  @R1
+  D=D-M
+  @END
+  D;JEQ
+  @R0
+  D=M
+  @R2
+  M=M+D
+  @R3
+  M=M+1
+  @LOOP
+  0;JMP
+(END)
+  @END
+  0;JMP

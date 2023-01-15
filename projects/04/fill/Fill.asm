@@ -12,22 +12,19 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
-
-@SCREEN
-D=A
 @R0 // loop counter (*(i++))
-M=D
+M=0
 
 @SCREEN
 D=A
 @R1 // loop begin (16384)
 M=D
 
-@24576
+@16388
 D=A
 @R2 // loop end (begin (16384) + screen width*height = (128*256/16 or 8192))
 M=D
-@R3 // bit that checks if screen has already been cleared; if true, don't clear until after the next draw
+@R3 // bit that checks if screen has already been cleared; if TRUE, don't clear until after the next draw. if FALSE, the screen has not been cleared; don't keep redrawing the screen
 M=0
 (LOOP)
   
@@ -40,30 +37,48 @@ M=0
   0;JEQ
   
 (DRAW)
-  // jump if clear bit is false
+  // go to LOOP if clear bit is FALSE
   @R3
   D=M
   @LOOP
   D;JEQ
   
-  @R0
+  @DRAWLOOP
+  0;JEQ
+
+(DRAWLOOP)
+  @R1 // go to LOOP if R1 == R2
   D=M
+  @R0
+  D=D+M
   @R2
-  D=D-M
-  @LOOP
+  D=M-D
+  @DRAWEND
   D;JEQ
   
+  // set RAM[16384]..RAM[24575] to -1
+  @R1
+  D=M
   @R0
+  A=D+M
   M=-1
-  A=A+1
-  
-  // set clear bit to false
+  @R0
+  M=M+1
+  @DRAWLOOP
+  0;JEQ
+
+(DRAWEND)
+  // set R0 back to 16384
+  @R0
+  M=0
+  // set clear bit to FALSE
   @R3
   M=0
   @LOOP
   0;JEQ
+
 (CLEAR)
-  // jump if clear bit is true
+  // go to LOOP if clear bit is TRUE
   @R3
   D=M
   @LOOP
@@ -72,11 +87,12 @@ M=0
   @SCREEN
   M=0
   
-  // set clear bit to true
+  // set clear bit to TRUE
   @R3
   M=1
   @LOOP
   D;JEQ
+
 (STOP)
 
 (END)

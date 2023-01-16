@@ -20,7 +20,7 @@ D=A
 @R1 // loop begin (16384)
 M=D
 
-@16388
+@24576
 D=A
 @R2 // loop end (begin (16384) + screen width*height = (128*256/16 or 8192))
 M=D

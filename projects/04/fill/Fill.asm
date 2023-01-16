@@ -42,10 +42,8 @@ M=0
   D=M
   @LOOP
   D;JEQ
-  
   @DRAWLOOP
   0;JEQ
-
 (DRAWLOOP)
   @R1 // go to LOOP if R1 == R2
   D=M
@@ -55,7 +53,6 @@ M=0
   D=M-D
   @DRAWEND
   D;JEQ
-  
   // set RAM[16384]..RAM[24575] to -1
   @R1
   D=M
@@ -66,7 +63,6 @@ M=0
   M=M+1
   @DRAWLOOP
   0;JEQ
-
 (DRAWEND)
   // set R0 back to 16384
   @R0
@@ -83,15 +79,36 @@ M=0
   D=M
   @LOOP
   D;JGT
-  
-  @SCREEN
+  @CLEARLOOP
+  0;JEQ
+(CLEARLOOP)
+  @R1 // go to LOOP if R1 == R2
+  D=M
+  @R0
+  D=D+M
+  @R2
+  D=M-D
+  @CLEAREND
+  D;JEQ
+  // set RAM[16384]..RAM[24575] to 0
+  @R1
+  D=M
+  @R0
+  A=D+M
   M=0
-  
+  @R0
+  M=M+1
+  @CLEARLOOP
+  0;JEQ
+(CLEAREND)
+  // set R0 back to 16384
+  @R0
+  M=0
   // set clear bit to TRUE
   @R3
   M=1
   @LOOP
-  D;JEQ
+  0;JEQ
 
 (STOP)
 

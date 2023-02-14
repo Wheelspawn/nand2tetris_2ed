@@ -40,4 +40,63 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+	
+	// instruction[0]: if comp > 0 jump
+	// instruction[1]: if comp = 0 jump
+	// instruction[2]: if comp < 0 jump
+	
+	// instruction[3]: store comp in M
+	// instruction[4]: store comp in D
+	// instruction[5]: store comp in A
+	
+	// instruction[6..11]: zx, nx, zy, ny, f, no
+	
+	// if instruction[12] == 0: select A
+	// if instruction[12] == 1: select M
+	// if instruction[15] == 0: A-instruction
+	// if instruction[15] == 1: C-instruction
+	
+	Mux16(a=instruction,b=loop,sel=instruction[15],out=muxA);				// Mux16 to A register
+	
+	And(a=instruction[15],b=instruction[4],out=loadD);						// C instruction and dest is D
+	DRegister(in=loop,load=loadD,out=outD);									// data register (D)
+	
+	Not(in=instruction[15],out=aInst);										// not a C instruction
+	Or(a=instruction[5],b=aInst,out=loadA);									// A instruction or load into A
+	ARegister(in=muxA,load=loadA,out=outA,out[0..14]=addressM);				// address register (A)
+	
+	Mux16(a=outA,b=inM,sel=instruction[12],out=muxALU);						// Mux16 to ALU
+	
+	ALU(x=outD,
+		y=muxALU,
+		zx=instruction[11],
+		nx=instruction[10],
+		zy=instruction[9],
+		ny=instruction[8],
+		f=instruction[7],
+		no=instruction[6],
+		out=loop,
+		out=outM,
+		zr=zr0,
+		ng=ng0);
+		
+	// zr0: if out==0	zr0=1	else zr0=0
+	// ng0: if out<0	ng0=1	else ng0=0
+	// gt0: if out>0	gt0=1	else gt0=0
+	
+	Not(in=zr0,out=notZr);													// zr0!=0
+	Not(in=ng0,out=gt);														// ng0>=0
+	And(a=gt,b=notZr,out=gt0);												// out!=0 and out>=0 -> out>0
+	
+	And(a=zr0,b=instruction[1],out=eqZero);									// zr0 == 0 and JEQ inst
+	And(a=ng0,b=instruction[2],out=ngZero);									// ng0 < 0 and JLT inst
+	And(a=gt0,b=instruction[0],out=gtZero);									// gt0 > 0 and JGT inst
+	
+	Or(a=eqZero,b=ngZero,out=ngOrEqZero);
+	Or(a=ngOrEqZero,b=gtZero,out=jump);										// jump if any above conditions are met
+	And(a=jump,b=instruction[15],out=jumpIfCInst);
+	
+	And(a=instruction[15],b=instruction[3],out=writeM);						// writeM
+	
+	PC(in=outA,load=jumpIfCInst,inc=true,reset=reset,out[0..14]=pc,out[15]=false);
 }

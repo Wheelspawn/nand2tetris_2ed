@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
     string input_file_name = argv[1];
     string output_file_name = input_file_name +".hack";
-    
+
     ifstream input_file(input_file_name);
     ofstream output_file(output_file_name);
     
@@ -29,6 +29,32 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    // pass 1
+    int count = 0;
+    std::string line;
+    while (std::getline(input_file, line)) {
+        int instruction_type = instructionType(line);
+
+        switch(instruction_type) {
+            case L_INSTRUCTION:
+                {
+                    string l_inst = line.substr(line.find("(")+1,line.find(")")-(line.find("(")+1));
+                    cout << l_inst << endl;
+                    symbol_table.insert(pair<string,int>(l_inst,count+1));
+                    break;
+                }
+            default:
+                count += 1;
+                break;
+        }
+    }
+
+    for (map<string,int>::const_iterator it = symbol_table.begin(); it != symbol_table.end(); ++it) {
+        std::cout << it->first << " " << it->second << "\n";
+    }
+
+    /*
+    // pass 2
     std::string line;
     while (std::getline(input_file, line)) {
         line = line.substr(0,line.size()-1);
@@ -56,6 +82,7 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
+    */
 
     input_file.close();
     output_file.close();

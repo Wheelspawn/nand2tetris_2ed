@@ -1,10 +1,10 @@
-@2
-D=A
-(A)
-(BC)
-@3
-D=D+A
-@0
-(SD)
-M=D
-(EFG)
+
+   @2
+   D=D+A
+   @TEST
+   M=D
+(TEST)
+   D=M
+ (TEST2)
+   dhtioa4erf
+   

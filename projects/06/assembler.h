@@ -5,6 +5,9 @@
 
 using namespace std;
 
+static string trimLeft(string instruction, string sep);
+static string trimRight(string instruction, string sep);
+static string trim(string instruction, string sep);
 static int instructionType(string instruction);
 static string dest(string instruction);
 static string comp(string instruction);

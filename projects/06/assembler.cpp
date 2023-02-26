@@ -12,7 +12,7 @@ enum InstructionType {
     };
 
 int main(int argc, char *argv[]) {
-
+    
     if (argc < 2) {
         std::cerr << "no input file specified\n";
         return 1;
@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
 
     // pass 1
     int count = 0;
+    int free_mem = 16;
     std::string line;
     while (std::getline(input_file, line)) {
         int instruction_type = instructionType(line);
@@ -38,9 +39,19 @@ int main(int argc, char *argv[]) {
         switch(instruction_type) {
             case L_INSTRUCTION:
                 {
-                    string l_inst = line.substr(line.find("(")+1,line.find(")")-(line.find("(")+1));
-                    cout << l_inst << endl;
+                    string l_inst = trim(line, " ()\r\n");
                     symbol_table.insert(pair<string,int>(l_inst,count+1));
+                    break;
+                }
+            case A_INSTRUCTION:
+                {
+                    string a_inst = trim(line, " @\r\n");
+                    char* p;
+                    strtol(a_inst.c_str(), &p, 10);
+
+                    if (!*p && (symbol_table.find(a_inst) == symbol_table.end())) {
+                        symbol_table.insert(pair<string,int>(a_inst,free_mem++));
+                    }
                     break;
                 }
             default:
@@ -82,12 +93,27 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
-    */
 
     input_file.close();
     output_file.close();
 
+    */
+
     return 0;
+}
+
+static string trimLeft (string instruction, string sep) {
+    size_t i = instruction.find_first_not_of(sep);
+    return (i == std::string::npos) ? "" : instruction.substr(i,instruction.size()-i);
+}
+
+static string trimRight (string instruction, string sep) {
+    size_t i = instruction.find_last_not_of(sep);
+    return (i == std::string::npos) ? "" : instruction.substr(0,i+1);
+}
+
+static string trim (string instruction, string sep) {
+    return trimLeft(trimRight(instruction, sep), sep);
 }
 
 static int instructionType(string instruction)

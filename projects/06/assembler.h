@@ -12,6 +12,8 @@ static int instructionType(string instruction);
 static string dest(string instruction);
 static string comp(string instruction);
 static string jump(string instruction);
+
+bool isNumber(const std::string& s);
 static string decimalToBinary(int num);
 
 map<string, int> symbol_table = {

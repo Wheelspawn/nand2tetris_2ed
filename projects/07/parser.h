@@ -26,6 +26,9 @@ class Parser {
 		bool hasMoreLines();
 		string advance();
 		CommandType commandType();
+		string arg1();
+		string arg2();
+		void allArgs();
 	private:
 		ifstream input_filestream;
 		ofstream output_filestream;

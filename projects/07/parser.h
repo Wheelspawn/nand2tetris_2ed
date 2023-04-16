@@ -17,22 +17,20 @@ enum CommandType {
 	C_UNKNOWN
     };
 
-using namespace std;
-
 class Parser {
 	public:
-		Parser(const string& inFn, const string& outFn);
+		Parser(const std::string& inFn, const std::string& outFn);
 		~Parser();
 		bool hasMoreLines();
-		string advance();
+		std::string advance();
 		CommandType commandType();
-		string arg1();
-		string arg2();
-		void allArgs();
+		std::string arg1();
+		std::string arg2();
+		void args();
+		std::string trim(const std::string& s);
 	private:
-		ifstream input_filestream;
-		ofstream output_filestream;
-		string currentLine;
+		std::ifstream input_filestream;
+		std::string currentLine;
 };
 
 #endif // PARSER_H

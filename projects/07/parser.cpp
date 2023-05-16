@@ -45,7 +45,7 @@ CommandType Parser::commandType() {
 	std::regex pop_regex(R"(^pop\s+\S+\s+\d+\s*(\r\n|\r|\n)?)");
 
 	if ((arg_0 == "add") || (arg_0 == "sub") || (arg_0 == "neg") ||
-		(arg_0 == "eq") || (arg_0 == "gt")) {
+		(arg_0 == "eq") || (arg_0 == "gt") || (arg_0 == "lt") || (arg_0 == "and")) {
 		return C_ARITHMETIC;
 	} else if (arg_0 == "push") {
 		return C_PUSH;

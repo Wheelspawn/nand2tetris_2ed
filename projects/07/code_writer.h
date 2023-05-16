@@ -16,6 +16,7 @@ class CodeWriter {
 		std::ofstream output_filestream;
 		int eq_counter;
 		int gt_counter;
+		int lt_counter;
 };
 
 #endif // CODEWRITER_H

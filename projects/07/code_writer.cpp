@@ -20,6 +20,7 @@ CodeWriter::CodeWriter(const std::string& outFn) {
 
 	eq_counter = 0;
 	gt_counter = 0;
+	lt_counter = 0;
 	}
 
 CodeWriter::~CodeWriter() {
@@ -101,33 +102,58 @@ void CodeWriter::writeArithmetic(const std::string& command) {
 						  << "D=M-D"	<< std::endl	// d=x-y
 						  << "@GTTRUE_"	<< std::to_string(gt_counter) << std::endl
 						  << "D;JGT"	<< std::endl
-						  << "@SP"		<< std::endl
-						  << "A=M-1"	<< std::endl
-						  << "M=0"		<< std::endl
+						  << "D=0"		<< std::endl
 						  << "@GTEND_"	<< std::to_string(gt_counter) << std::endl
 						  << "0;JMP"	<< std::endl
 						  << "(GTTRUE_"	<< std::to_string(gt_counter) << ")" << std::endl
+						  << "D=-1"		<< std::endl
+						  << "(GTEND_"	<< std::to_string(gt_counter) << ")" << std::endl
 						  << "@SP"		<< std::endl
 						  << "A=M-1"	<< std::endl
-						  << "M=-1"		<< std::endl
-						  << "(GTEND_"	<< std::to_string(gt_counter) << ")" << std::endl;
+						  << "M=D"		<< std::endl;
 		gt_counter++;
 	}
 	else if (command == "lt")
 	{
-		return;
+		output_filestream << "@SP"		<< std::endl
+						  << "AM=M-1" 	<< std::endl
+						  << "D=M"		<< std::endl
+						  << "A=A-1"	<< std::endl
+						  << "D=M-D"	<< std::endl
+						  << "@LTTRUE_"	<< std::to_string(lt_counter) << std::endl
+						  << "D;JLT"	<< std::endl
+						  << "D=0"		<< std::endl
+						  << "@LTEND_"	<< std::to_string(lt_counter) << std::endl
+						  << "0;JMP"	<< std::endl
+						  << "(LTTRUE_"	<< std::to_string(lt_counter) << ")" << std::endl
+						  << "D=-1"		<< std::endl
+						  << "(LTEND_"	<< std::to_string(lt_counter) << ")" << std::endl
+						  << "@SP"		<< std::endl
+						  << "A=M-1"	<< std::endl
+						  << "M=D"		<< std::endl;
+		lt_counter++;
 	}
 	else if (command == "and")
 	{
-		return;
+		output_filestream << "@SP"		<< std::endl
+						  << "AM=M-1" 	<< std::endl
+						  << "D=M"		<< std::endl
+						  << "A=A-1"	<< std::endl
+						  << "M=D&M"	<< std::endl;
 	}
 	else if (command == "or")
 	{
-		return;
+		output_filestream << "@SP"		<< std::endl
+						  << "AM=M-1" 	<< std::endl
+						  << "D=M"		<< std::endl
+						  << "A=A-1"	<< std::endl
+						  << "M=D|M"	<< std::endl;
 	}
 	else if (command == "not")
 	{
-		return;
+		output_filestream << "@SP"		<< std::endl
+						  << "A=M-1" 	<< std::endl
+						  << "M=!M"		<< std::endl;
 	}
 	else
 	{

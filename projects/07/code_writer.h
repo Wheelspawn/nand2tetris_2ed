@@ -8,12 +8,14 @@
 
 class CodeWriter {
 	public:
-		CodeWriter(const std::string& inputFileName);
+		CodeWriter(const std::string& outputFileName);
 		~CodeWriter();
-		void writeArithmetic(std::string& command);
+		void writeArithmetic(const std::string& command);
 		void writePushPop(CommandType command, const std::string& segment, int idx);
 	private:
 		std::ofstream output_filestream;
+		int eq_counter;
+		int gt_counter;
 };
 
 #endif // CODEWRITER_H

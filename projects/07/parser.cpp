@@ -5,9 +5,12 @@
 #include <regex>
 #include "parser.h"
 
-Parser::Parser(const std::string& inputFileName, const std::string& outputFileName) {
+Parser::Parser(const std::string& inFn) {
 	// constructor
-	input_filestream.open(inputFileName);
+	arg_0 = "";
+	arg_1 = "";
+	arg_2 = "";
+	input_filestream.open(inFn);
 	}
 
 Parser::~Parser() {
@@ -24,6 +27,7 @@ std::string Parser::advance() {
 	// advance the input stream by one line and return that line, otherwise return the empty string
 	if (std::getline(input_filestream, currentLine)) {
 		currentLine = trim(currentLine);
+		getArgs();
 		return currentLine;
 	} else {
 		return "";
@@ -40,53 +44,46 @@ CommandType Parser::commandType() {
 	std::regex push_regex(R"(^push\s+\S+\s+\d+\s*(\r\n|\r|\n)?)");
 	std::regex pop_regex(R"(^pop\s+\S+\s+\d+\s*(\r\n|\r|\n)?)");
 
-	if (regex_match(currentLine, arithmetic_regex)) {
+	if ((arg_0 == "add") || (arg_0 == "sub") || (arg_0 == "neg") ||
+		(arg_0 == "eq") || (arg_0 == "gt")) {
 		return C_ARITHMETIC;
-	} else if (regex_match(currentLine, push_regex)) {
+	} else if (arg_0 == "push") {
 		return C_PUSH;
-	} else if (regex_match(currentLine, pop_regex)) {
+	} else if (arg_0 == "pop") {
 		return C_POP;
 	} else {
 		return C_UNKNOWN;
 	}
 }
 
+std::string Parser::arg0() {
+	return arg_0;
+}
+
 std::string Parser::arg1() {
-	// return the first argument of currentLine
-	std::regex arg1_regex(R"(^\s*(\S+))");
-	std::smatch match;
-
-	if (std::regex_search(currentLine, match, arg1_regex) && match.size() > 1) {
-		return match[1].str();
-	} else {
-		return "";
-	}
-
+	return arg_1;
 }
 
-std::string Parser::arg2() {
-	// return the second argument of currentLine if it exists, otherwise return empty string
-	std::regex arg2_regex(R"(^\s*\S+\s+(\S+))");
-	std::smatch match;
-
-	if (std::regex_search(currentLine, match, arg2_regex) && match.size() > 1) {
-		return match[1].str();
-	} else {
-		return "";
-	}
+int Parser::arg2() {
+	int r;
+	
+	std::stringstream ss; 
+	ss << arg_2;
+	ss >> r;
+	
+	return r;
 }
 
-void Parser::args() {
+void Parser::getArgs() {
 	// (^\s*([a-zA-Z0-9_]*)(\s+)?(\S+)?)
 	// (^\s*(\S+)(\s+)?(\S+)?)")
-	std::regex arg_regex(R"(^(\S+)(\s+)?(\S+)?)");
+	std::regex arg_regex(R"(^(\S+)(\s+)?(\S+)?(\s+)?(\d+)?)");
 	std::smatch match;
 
 	if (std::regex_search(currentLine, match, arg_regex) && match.size() > 0) {
-		// std::cout << match.size() << std::endl;
-		for (int i = 0; i < match.size(); i++)
-			std::cout << match[i].str() << " | ";
-		std::cout << std::endl;
+		arg_0 = match[1];
+		arg_1 = match[3];
+		arg_2 = match[5];
 	}
 }
 

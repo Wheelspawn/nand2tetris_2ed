@@ -29,23 +29,30 @@ int main(int argc, char *argv[]) {
 	
 	//   a.exe file.txt
 	
-	std::cout << "start" << std::endl;
     if (argc < 2) {
         std::cerr << "no input file specified\n";
         return 1;
     }
 
     std::string input_file_name = argv[1];
-    std::string output_file_name = input_file_name +".vm";
+    std::string output_file_name = input_file_name.substr(0,input_file_name.size()-3) +".asm";
 	
-    Parser parser(input_file_name, output_file_name);
+    Parser parser(input_file_name);
+	CodeWriter codewriter(output_file_name);
 	
 	// print out command type, first argument, second argument
 	while (parser.hasMoreLines()) {
 		parser.advance();
-		parser.args();
+		
+		if (parser.commandType() == C_ARITHMETIC)
+		{
+			codewriter.writeArithmetic(parser.arg0());
+		}
+		else
+		{
+			codewriter.writePushPop(parser.commandType(), parser.arg1(), parser.arg2());
+		}
 	}
 	
 	return 0;
 }
-

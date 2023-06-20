@@ -54,6 +54,8 @@ CodeWriter::~CodeWriter() {
 
 void CodeWriter::writeArithmetic(const std::string& command) {
 	
+	output_filestream << "// " << command << std::endl;
+	
 	if (command == "add")
 	{
 		output_filestream << "@SP"		<< std::endl
@@ -162,54 +164,154 @@ void CodeWriter::writeArithmetic(const std::string& command) {
 }
 
 void CodeWriter::writePushPop(CommandType command, const std::string& segment, int idx) {
+	
+	std::string segmentName;
+	if (segment == "argument") { segmentName = "ARG"; }
+	else if (segment == "local") { segmentName = "LCL"; }
+	else if (segment == "this" || (segment == "pointer" && idx == 0)) { segmentName = "THIS"; }
+	else if (segment == "that" || (segment == "pointer" && idx == 1)) { segmentName = "THAT"; }
+	else if (segment == "temp") { segmentName = "TEMP"; }
+	
+	std::cout << segment << std::endl;
+	std::cout << segmentName << std::endl << std::endl;
+	
 	switch(command) {
 		case C_PUSH:
-		{
+		{			
 			if (segment == "constant") {
-				output_filestream << "@"
-						   << idx << std::endl
-						   << "D=A"		<< std::endl
-						   << "@SP"		<< std::endl
-						   << "A=M"		<< std::endl
-						   << "M=D"		<< std::endl
-						   << "@SP"		<< std::endl
-						   << "M=M+1"	<< std::endl;
+				
+				output_filestream << "// push constant " << idx << std::endl;
+				
+				output_filestream << "@" << idx			<< std::endl
+								  << "D=A"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "A=M"				<< std::endl
+								  << "M=D"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "M=M+1"			<< std::endl;
+			}
+			else if (segment == "pointer" && idx == 0)
+			{
+				
+				output_filestream << "// push this" << idx << std::endl;
+				
+				output_filestream << "@THIS"			<< std::endl
+								  << "AD=M"				<< std::endl
+								  << "A=D"				<< std::endl
+								  << "D=M"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "A=M"				<< std::endl
+								  << "M=D"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "M=M+1"			<< std::endl;
+			}
+			else if (segment == "pointer" && idx == 1)
+			{
+				
+				output_filestream << "// push that " << idx << std::endl;
+				
+				output_filestream << "@THAT"			<< std::endl
+								  << "AD=M"				<< std::endl
+								  << "A=D"				<< std::endl
+								  << "D=M"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "A=M"				<< std::endl
+								  << "M=D"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "M=M+1"			<< std::endl;
+			}
+			else {
+				
+				output_filestream << "// push " << segmentName << " " << idx << std::endl;
+				
+				output_filestream << "@" << segmentName	<< std::endl
+								  << "AD=M"				<< std::endl
+								  << "@" << idx		 	<< std::endl
+								  << "D=D+A"			<< std::endl
+								  << "A=D"				<< std::endl
+								  << "D=M"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "A=M"				<< std::endl
+								  << "M=D"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "M=M+1"			<< std::endl;
 			}
 			break;
 		}
 		case C_POP:
 		{
-            // Calculate the effective address segment[index] and store it in RAM[5]
-            output_filestream << "@" << segment
-					   << std::endl
-                       << "D=M"
-                       << std::endl
-                       << "@" << idx
-                       << std::endl
-                       << "D=D+A"
-                       << std::endl
-                       << "@5"
-                       << std::endl
-                       << "M=D"
-                       << std::endl;
+            // Calculate the effective address segment[index] and store it in RAM[13]
+			if (segment == "temp")
+			{
+				output_filestream << "// pop temp " << idx << std::endl;
+				
+				output_filestream << "@" << std::to_string(5+idx)
+								  << std::endl
+								  << "D=A"
+								  << std::endl
+								  << "@R13"
+								  << std::endl
+								  << "M=D"
+								  << std::endl;
+			}
+			else
+			{
+				output_filestream << "// pop " << segmentName << " " << idx << std::endl;
+				
+				output_filestream << "@" << segmentName
+								  << std::endl
+								  << "D=M"
+								  << std::endl
+								  << "@" << idx
+								  << std::endl
+								  << "D=D+A"
+								  << std::endl
+								  << "@R13"
+								  << std::endl
+								  << "M=D"
+								  << std::endl;
+			}
 
             // Pop the top value from the stack and store it in the effective address
             output_filestream << "@SP"
-                       << std::endl
-                       << "AM=M-1"
-                       << std::endl
-                       << "D=M"
-                       << std::endl
-                       << "@5"
-                       << std::endl
-                       << "A=M"
-                       << std::endl
-                       << "M=D"
-                       << std::endl;
+                    		  << std::endl
+                    		  << "AM=M-1"
+                    		  << std::endl
+                    		  << "D=M"
+                    		  << std::endl
+                    		  << "@R13"
+                    		  << std::endl
+                    		  << "A=M"
+                    		  << std::endl
+                    		  << "M=D"
+                    		  << std::endl;
             break;
 		}
 		default:
 			// Invalid CommandType
 			break;
 	}
+}
+
+void CodeWriter::writeLabel(const std::string& label) {
+            output_filestream << "(" + label + ")"
+							  << std::endl;
+}
+
+void CodeWriter::writeGoto(const std::string& label) {
+            output_filestream << "@" + label << std::endl
+							  << "0;JMP" << std::endl;
+}
+
+void CodeWriter::writeIf(const std::string& label) {
+            output_filestream << "@SP"
+                    		  << std::endl
+                    		  << "AM=M-1"
+                    		  << std::endl
+                    		  << "D=M"
+                    		  << std::endl
+							  << "@" + label
+							  << std::endl
+							  << "D;JNE"
+							  << std::endl;
 }

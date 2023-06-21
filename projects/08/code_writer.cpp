@@ -193,10 +193,10 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			else if (segment == "pointer" && idx == 0)
 			{
 				
-				output_filestream << "// push this" << idx << std::endl;
+				output_filestream << "// push this"		<< std::endl;
 				
-				output_filestream << "@THIS"			<< std::endl
-								  << "D=A"				<< std::endl
+				output_filestream << "@3"				<< std::endl
+								  << "D=M"				<< std::endl
 								  << "@SP"				<< std::endl
 								  << "A=M"				<< std::endl
 								  << "M=D"				<< std::endl
@@ -206,10 +206,10 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			else if (segment == "pointer" && idx == 1)
 			{
 				
-				output_filestream << "// push that " << idx << std::endl;
+				output_filestream << "// push that "	<< std::endl;
 				
-				output_filestream << "@THAT"			<< std::endl
-								  << "D=A"				<< std::endl
+				output_filestream << "@4"				<< std::endl
+								  << "D=M"				<< std::endl
 								  << "@SP"				<< std::endl
 								  << "A=M"				<< std::endl
 								  << "M=D"				<< std::endl
@@ -258,6 +258,32 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 				output_filestream << "// pop temp " << idx << std::endl;
 				
 				output_filestream << "@" << std::to_string(5+idx)
+								  << std::endl
+								  << "D=A"
+								  << std::endl
+								  << "@R13"
+								  << std::endl
+								  << "M=D"
+								  << std::endl;
+			}
+			else if (segment == "pointer" && idx == 0)
+			{
+				output_filestream << "// pop temp " << idx << std::endl;
+				
+				output_filestream << "@3"
+								  << std::endl
+								  << "D=A"
+								  << std::endl
+								  << "@R13"
+								  << std::endl
+								  << "M=D"
+								  << std::endl;
+			}
+			else if (segment == "pointer" && idx == 1)
+			{
+				output_filestream << "// pop temp " << idx << std::endl;
+				
+				output_filestream << "@4"
 								  << std::endl
 								  << "D=A"
 								  << std::endl

@@ -196,9 +196,7 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 				output_filestream << "// push this" << idx << std::endl;
 				
 				output_filestream << "@THIS"			<< std::endl
-								  << "AD=M"				<< std::endl
-								  << "A=D"				<< std::endl
-								  << "D=M"				<< std::endl
+								  << "D=A"				<< std::endl
 								  << "@SP"				<< std::endl
 								  << "A=M"				<< std::endl
 								  << "M=D"				<< std::endl
@@ -211,7 +209,21 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 				output_filestream << "// push that " << idx << std::endl;
 				
 				output_filestream << "@THAT"			<< std::endl
-								  << "AD=M"				<< std::endl
+								  << "D=A"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "A=M"				<< std::endl
+								  << "M=D"				<< std::endl
+								  << "@SP"				<< std::endl
+								  << "M=M+1"			<< std::endl;
+			}
+			else if (segment == "temp")
+			{
+				output_filestream << "// push temp " << " " << idx << std::endl;
+				
+				output_filestream << "@5"			<< std::endl
+								  << "D=A"				<< std::endl
+								  << "@" << idx		 	<< std::endl
+								  << "D=D+A"			<< std::endl
 								  << "A=D"				<< std::endl
 								  << "D=M"				<< std::endl
 								  << "@SP"				<< std::endl

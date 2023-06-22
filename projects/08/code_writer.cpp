@@ -162,13 +162,11 @@ void CodeWriter::writeArithmetic(const std::string& command) {
 }
 
 void CodeWriter::writePushPop(CommandType command, const std::string& segment, int idx) {
-	
 	std::string segmentName;
 	if (segment == "argument") { segmentName = "ARG"; }
 	else if (segment == "local") { segmentName = "LCL"; }
-	else if (segment == "this" || (segment == "pointer" && idx == 0)) { segmentName = "THIS"; }
-	else if (segment == "that" || (segment == "pointer" && idx == 1)) { segmentName = "THAT"; }
-	else if (segment == "temp") { segmentName = "TEMP"; }
+	else if (segment == "this") { segmentName = "THIS"; }
+	else if (segment == "that") { segmentName = "THAT"; }
 	
 	switch(command) {
 		case C_PUSH:
@@ -201,7 +199,7 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			}
 			else if (segment == "pointer" && idx == 0)
 			{
-				output_filestream << "// push this"
+				output_filestream << "// push pointer 0"
 								  << std::endl;
 				output_filestream << "@3"
 								  << std::endl
@@ -210,7 +208,7 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			}
 			else if (segment == "pointer" && idx == 1)
 			{
-				output_filestream << "// push that"
+				output_filestream << "// push pointer 1"
 								  << std::endl;
 				output_filestream << "@4"
 								  << std::endl
@@ -235,6 +233,8 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 								  << std::endl;
 			}
 			else {
+				output_filestream << "// else "
+								  << std::endl;
 				output_filestream << "// push " << segmentName << " " << idx
 								  << std::endl;
 				output_filestream << "@" << segmentName

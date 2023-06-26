@@ -163,11 +163,11 @@ void CodeWriter::writeArithmetic(const std::string& command) {
 
 void CodeWriter::writePushPop(CommandType command, const std::string& segment, int idx) {
 	std::string segmentName;
-	if (segment == "argument") { segmentName = "ARG"; }
-	else if (segment == "local") { segmentName = "LCL"; }
-	else if (segment == "this") { segmentName = "THIS"; }
-	else if (segment == "that") { segmentName = "THAT"; }
-	
+	if (segment == "argument") { segmentName = "2"; }
+	else if (segment == "local") { segmentName = "1"; }
+	else if (segment == "this") { segmentName = "3"; }
+	else if (segment == "that") { segmentName = "4"; }
+
 	switch(command) {
 		case C_PUSH:
 		{	
@@ -233,8 +233,6 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 								  << std::endl;
 			}
 			else {
-				output_filestream << "// else "
-								  << std::endl;
 				output_filestream << "// push " << segmentName << " " << idx
 								  << std::endl;
 				output_filestream << "@" << segmentName
@@ -288,7 +286,7 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			}
 			else if (segment == "pointer" && idx == 0)
 			{
-				output_filestream << "// pop this " << idx << std::endl;
+				output_filestream << "// pop pointer 0" << std::endl;
 				
 				output_filestream << "@3"
 								  << std::endl
@@ -297,7 +295,7 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			}
 			else if (segment == "pointer" && idx == 1)
 			{
-				output_filestream << "// pop that " << idx << std::endl;
+				output_filestream << "// pop pointer 1" << std::endl;
 				
 				output_filestream << "@4"
 								  << std::endl
@@ -346,16 +344,22 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 }
 
 void CodeWriter::writeLabel(const std::string& label) {
+			output_filestream << "// write-label " << label
+							  << std::endl;
             output_filestream << "(" + label + ")"
 							  << std::endl;
 }
 
 void CodeWriter::writeGoto(const std::string& label) {
+			output_filestream << "// write-goto " << label
+							  << std::endl;
             output_filestream << "@" + label << std::endl
 							  << "0;JMP" << std::endl;
 }
 
 void CodeWriter::writeIf(const std::string& label) {
+			output_filestream << "// write-if " << label
+							  << std::endl;
             output_filestream << "@SP"
                     		  << std::endl
                     		  << "AM=M-1"

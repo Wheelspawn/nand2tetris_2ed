@@ -48,9 +48,21 @@ int main(int argc, char *argv[]) {
 		{
 			codewriter.writeArithmetic(parser.arg0());
 		}
-		else
+		else if ((parser.commandType() == C_PUSH) || (parser.commandType() == C_POP))
 		{
 			codewriter.writePushPop(parser.commandType(), parser.arg1(), parser.arg2());
+		}
+		else if (parser.commandType() == C_LABEL)
+		{
+			codewriter.writeLabel(parser.arg1());
+		}
+		else if (parser.commandType() == C_GOTO)
+		{
+			codewriter.writeGoto(parser.arg1());
+		}
+		else if (parser.commandType() == C_IF)
+		{
+			codewriter.writeIf(parser.arg1());
 		}
 	}
 	

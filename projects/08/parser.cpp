@@ -45,12 +45,19 @@ CommandType Parser::commandType() {
 	std::regex pop_regex(R"(^pop\s+\S+\s+\d+\s*(\r\n|\r|\n)?)");
 
 	if ((arg_0 == "add") || (arg_0 == "sub") || (arg_0 == "neg") ||
-		(arg_0 == "eq") || (arg_0 == "gt") || (arg_0 == "lt") || (arg_0 == "and")) {
+		(arg_0 == "eq") || (arg_0 == "gt") || (arg_0 == "lt") || (arg_0 == "and")
+		|| (arg_0 == "or") || (arg_0 == "not")) {
 		return C_ARITHMETIC;
 	} else if (arg_0 == "push") {
 		return C_PUSH;
 	} else if (arg_0 == "pop") {
 		return C_POP;
+	} else if (arg_0 == "label") {
+		return C_LABEL;
+	} else if (arg_0 == "goto") {
+		return C_GOTO;
+	} else if (arg_0 == "if-goto") {
+		return C_IF;
 	} else {
 		return C_UNKNOWN;
 	}
@@ -85,6 +92,12 @@ void Parser::getArgs() {
 		arg_1 = match[3];
 		arg_2 = match[5];
 	}
+	else
+	{
+		arg_0 = "";
+		arg_1 = "";
+		arg_2 = "";
+	}
 }
 
 std::string Parser::trim(const std::string& s) {
@@ -92,9 +105,6 @@ std::string Parser::trim(const std::string& s) {
     std::string s_trimmed = (end == std::string::npos) ? "" : s.substr(0, end + 1);
 
 	std::size_t commentPos = s_trimmed.find("//");
-	
-	// std::cout << s << std::endl;
-	// std::cout << s_trimmed.substr(0, commentPos) << std::endl;
 	
     if (commentPos != std::string::npos) {
         return s_trimmed.substr(0, commentPos);

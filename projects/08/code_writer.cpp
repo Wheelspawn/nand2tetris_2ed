@@ -374,48 +374,30 @@ void CodeWriter::writeIf(const std::string& label) {
 
 void CodeWriter::writeFunction(const std::string& functionName, int nVars) {
 	output_filestream << "// function " << functionName
-					  << std::endl
-					  << "(" << functionName << ")"
-					  << std::endl
-					  << "@" << nVars
-					  << std::endl
-					  << "D=A"
-					  << std::endl
-					  << "@14"
-					  << std::endl
-					  << "M=D"
-					  << std::endl
-					  << "(" << functionName << "_argvars_loop)"
-					  << std::endl
-					  << "@14"
-					  << std::endl
-					  << "D=M"
-					  << std::endl
-					  << "@" << functionName << "_argvars_exit"
-					  << std::endl
-					  << "D;JEQ"
 					  << std::endl;
 	
-	writePushPop(C_PUSH, "constant", 0);
-
-	output_filestream << "@14"
-					  << std::endl
-					  << "M=M-1"
-					  << std::endl;
-
-	output_filestream << "@" << functionName << "_argvars_loop"
-					  << std::endl
-					  << "0;JEQ"
-					  << std::endl
-					  << "(" << functionName << "_argvars_exit)"
-					  << std::endl;
-
+	for (int i = 0; i < nVars; ++i)
+	{
+		output_filestream << "@0"
+						  << std::endl
+						  << "D=A"
+						  << std::endl
+						  << "@SP"
+						  << std::endl
+						  << "A=M"
+						  << std::endl
+						  << "M=D"
+						  << std::endl
+						  << "@SP"
+						  << std::endl
+						  << "M=M+1"
+						  << std::endl;
+	}
 }
 
 void CodeWriter::writeCall(const std::string& functionName, int nVars) {
 	output_filestream << "// write-call " << functionName
 					  << std::endl;
-					  writeGoto(functionName);
 }
 
 void CodeWriter::writeReturn() {

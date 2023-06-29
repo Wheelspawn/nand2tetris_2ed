@@ -371,3 +371,55 @@ void CodeWriter::writeIf(const std::string& label) {
 							  << "D;JNE"
 							  << std::endl;
 }
+
+void CodeWriter::writeFunction(const std::string& functionName, int nVars) {
+	output_filestream << "// function " << functionName
+					  << std::endl
+					  << "(" << functionName << ")"
+					  << std::endl
+					  << "@" << nVars
+					  << std::endl
+					  << "D=A"
+					  << std::endl
+					  << "@14"
+					  << std::endl
+					  << "M=D"
+					  << std::endl
+					  << "(" << functionName << "_argvars_loop)"
+					  << std::endl
+					  << "@14"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@" << functionName << "_argvars_exit"
+					  << std::endl
+					  << "D;JEQ"
+					  << std::endl;
+	
+	writePushPop(C_PUSH, "constant", 0);
+
+	output_filestream << "@14"
+					  << std::endl
+					  << "M=M-1"
+					  << std::endl;
+
+	output_filestream << "@" << functionName << "_argvars_loop"
+					  << std::endl
+					  << "0;JEQ"
+					  << std::endl
+					  << "(" << functionName << "_argvars_exit)"
+					  << std::endl;
+
+}
+
+void CodeWriter::writeCall(const std::string& functionName, int nVars) {
+	output_filestream << "// write-call " << functionName
+					  << std::endl;
+					  writeGoto(functionName);
+}
+
+void CodeWriter::writeReturn() {
+	output_filestream << "// write-return"
+					  << std::endl;
+}
+

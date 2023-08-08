@@ -58,6 +58,12 @@ CommandType Parser::commandType() {
 		return C_GOTO;
 	} else if (arg_0 == "if-goto") {
 		return C_IF;
+	} else if (arg_0 == "function") {
+		return C_FUNCTION;
+	} else if (arg_0 == "call") {
+		return C_CALL;
+	} else if (arg_0 == "return") {
+		return C_RETURN;
 	} else {
 		return C_UNKNOWN;
 	}

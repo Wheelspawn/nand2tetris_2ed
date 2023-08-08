@@ -7,30 +7,23 @@
 CodeWriter::CodeWriter(const std::string& outFn) {
 	// constructor
 	output_filestream.open(outFn);
-	
-	output_filestream << "@256"
-					  << std::endl
-					  << "D=A"
-					  << std::endl
-					  << "@SP"
-					  << std::endl
-					  << "M=D"
-					  << std::endl
-					  << std::endl;
 
 	eq_counter = 0;
 	gt_counter = 0;
 	lt_counter = 0;
+	call_counter = 0;
 	}
 
 CodeWriter::~CodeWriter() {
 	// deconstructor
+	/*
 	output_filestream << "(INFINITELOOP)"
 					  << std::endl
 					  << "@INFINITELOOP"
 					  << std::endl
 					  << "0;JMP"
 					  << std::endl;
+					  */
 	output_filestream.close();
 }
 
@@ -376,8 +369,17 @@ void CodeWriter::writeFunction(const std::string& functionName, int nVars) {
 	output_filestream << "// function " << functionName
 					  << std::endl;
 	
+	writeLabel(functionName);
+	
+	// repeat nVars times:
+	// push 0
+	output_filestream << "// repeat " << std::to_string(nVars) << " times:"
+					  << std::endl;
+
 	for (int i = 0; i < nVars; ++i)
 	{
+		output_filestream << "// push local 0"
+						  << std::endl;
 		output_filestream << "@0"
 						  << std::endl
 						  << "D=A"
@@ -395,13 +397,310 @@ void CodeWriter::writeFunction(const std::string& functionName, int nVars) {
 	}
 }
 
-void CodeWriter::writeCall(const std::string& functionName, int nVars) {
+void CodeWriter::writeCall(const std::string& functionName, int nArgs) {
 	output_filestream << "// write-call " << functionName
 					  << std::endl;
+
+	// push returnAddress
+	output_filestream << "// push returnAddress"
+					  << std::endl;
+	output_filestream << "@" + functionName + "_" + std::to_string(call_counter)
+					  << std::endl
+					  << "D=A"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "M=D"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "M=M+1"
+					  << std::endl;
+
+	// push LCL
+	output_filestream << "// push LCL"
+					  << std::endl;
+	output_filestream << "@LCL"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "M=D"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "M=M+1"
+					  << std::endl;
+
+	// push ARG
+	output_filestream << "// push ARG"
+					  << std::endl;
+	output_filestream << "@ARG"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "M=D"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "M=M+1"
+					  << std::endl;
+
+	// push THIS
+	output_filestream << "// push THIS"
+					  << std::endl;
+	output_filestream << "@THIS"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "M=D"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "M=M+1"
+					  << std::endl;
+
+	// push THAT
+	output_filestream << "// push THAT"
+					  << std::endl;
+	output_filestream << "@THAT"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "M=D"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "M=M+1"
+					  << std::endl;
+	
+	// ARG = SP-5-nArgs
+	output_filestream << "// ARG = SP-5-nArgs"
+					  << std::endl;
+	output_filestream << "@SP"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@5"
+					  << std::endl
+					  << "D=D-A"
+					  << std::endl
+					  << "@" + std::to_string(nArgs)
+					  << std::endl
+					  << "D=D-A"
+					  << std::endl
+					  << "@ARG"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+	
+	// LCL = SP
+	output_filestream << "// LCL = SP"
+					  << std::endl;
+	output_filestream << "@SP"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@LCL"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+	
+	// goto f
+	output_filestream << "// goto f"
+					  << std::endl;
+	writeGoto(functionName);
+	
+	// ( returnAddress )
+	output_filestream << "// ( returnAddress )"
+					  << std::endl;
+	writeLabel(functionName + "_" + std::to_string(call_counter++));
 }
 
 void CodeWriter::writeReturn() {
 	output_filestream << "// write-return"
+					  << std::endl;
+	
+	/*
+	// frame = LCL
+	output_filestream << "// frame = LCL"
+					  << std::endl;
+	output_filestream << "@1"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@14"
+					  << std::endl
+					  << "M=D"
+					  << std::endl; */
+	
+	// frame = LCL
+	output_filestream << "// frame = LCL"
+					  << std::endl;
+	output_filestream << "@LCL"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@14"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+					  
+	// retAddr = *(frame-5)
+	output_filestream << "// retAddr = *(frame-5)"
+					  << std::endl;
+	output_filestream << "@14"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@5"
+					  << std::endl
+					  << "D=D-A"
+					  << std::endl
+					  << "A=D"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@15"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+	
+	// *ARG = pop()
+	output_filestream << "// *ARG = pop()"
+					  << std::endl;
+	output_filestream << "@SP"
+                      << std::endl
+                      << "AM=M-1"
+                      << std::endl
+                      << "D=M"
+					  << std::endl
+					  << "@ARG"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+
+	// SP = ARG+1
+	output_filestream << "// SP = ARG+1"
+					  << std::endl;
+	output_filestream << "@ARG"
+					  << std::endl
+					  << "D=M+1"
+					  << std::endl
+					  << "@SP"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+	
+	// restore THAT
+	output_filestream << "// restore THAT"
+					  << std::endl;
+	output_filestream << "@14"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@1"
+					  << std::endl
+					  << "D=D-A"
+					  << std::endl
+					  << "A=D"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@THAT"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+					  
+	// restore THIS
+	output_filestream << "// restore THIS"
+					  << std::endl;
+	output_filestream << "@14"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@2"
+					  << std::endl
+					  << "D=D-A"
+					  << std::endl
+					  << "A=D"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@THIS"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+	
+	// restore ARG
+	output_filestream << "// restore ARG"
+					  << std::endl;
+	output_filestream << "@14"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@3"
+					  << std::endl
+					  << "D=D-A"
+					  << std::endl
+					  << "A=D"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@ARG"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+	
+	// restore LCL
+	output_filestream << "// restore LCL"
+					  << std::endl;
+	output_filestream << "@F"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@4"
+					  << std::endl
+					  << "D=D-A"
+					  << std::endl
+					  << "A=D"
+					  << std::endl
+					  << "D=M"
+					  << std::endl
+					  << "@LCL"
+					  << std::endl
+					  << "M=D"
+					  << std::endl;
+	
+	// goto retAddr
+	output_filestream << "// goto retAddr"
+					  << std::endl;
+	output_filestream << "@15"
+					  << std::endl
+					  << "A=M"
+					  << std::endl
+					  << "0;JMP"
 					  << std::endl;
 }
 

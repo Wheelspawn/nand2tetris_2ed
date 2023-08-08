@@ -12,11 +12,18 @@ class CodeWriter {
 		~CodeWriter();
 		void writeArithmetic(const std::string& command);
 		void writePushPop(CommandType command, const std::string& segment, int idx);
+		void writeLabel(const std::string& label);
+		void writeGoto(const std::string& label);
+		void writeIf(const std::string& label);
+		void writeFunction(const std::string& functionName, int nVars);
+		void writeCall(const std::string& functionName, int nArgs);
+		void writeReturn();
 	private:
 		std::ofstream output_filestream;
 		int eq_counter;
 		int gt_counter;
 		int lt_counter;
+		int call_counter;
 };
 
 #endif // CODEWRITER_H

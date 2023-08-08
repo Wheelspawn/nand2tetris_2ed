@@ -64,6 +64,18 @@ int main(int argc, char *argv[]) {
 		{
 			codewriter.writeIf(parser.arg1());
 		}
+		else if (parser.commandType() == C_FUNCTION)
+		{
+			codewriter.writeFunction(parser.arg1(), parser.arg2());
+		}
+		else if (parser.commandType() == C_CALL)
+		{
+			codewriter.writeCall(parser.arg1(), parser.arg2());
+		}
+		else if (parser.commandType() == C_RETURN)
+		{
+			codewriter.writeReturn();
+		}
 	}
 	
 	return 0;

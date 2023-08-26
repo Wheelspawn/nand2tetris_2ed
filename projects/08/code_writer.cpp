@@ -548,7 +548,7 @@ void CodeWriter::writeReturn() {
 					  << std::endl
 					  << "D=M"
 					  << std::endl
-					  << "@14"
+					  << "@FRAME"
 					  << std::endl
 					  << "M=D"
 					  << std::endl; */
@@ -560,7 +560,7 @@ void CodeWriter::writeReturn() {
 					  << std::endl
 					  << "D=M"
 					  << std::endl
-					  << "@14"
+					  << "@FRAME"
 					  << std::endl
 					  << "M=D"
 					  << std::endl;
@@ -568,7 +568,7 @@ void CodeWriter::writeReturn() {
 	// retAddr = *(frame-5)
 	output_filestream << "// retAddr = *(frame-5)"
 					  << std::endl;
-	output_filestream << "@14"
+	output_filestream << "@FRAME"
 					  << std::endl
 					  << "D=M"
 					  << std::endl
@@ -580,7 +580,7 @@ void CodeWriter::writeReturn() {
 					  << std::endl
 					  << "D=M"
 					  << std::endl
-					  << "@15"
+					  << "@RETADDR"
 					  << std::endl
 					  << "M=D"
 					  << std::endl;
@@ -616,7 +616,7 @@ void CodeWriter::writeReturn() {
 	// restore THAT
 	output_filestream << "// restore THAT"
 					  << std::endl;
-	output_filestream << "@14"
+	output_filestream << "@FRAME"
 					  << std::endl
 					  << "D=M"
 					  << std::endl
@@ -636,7 +636,7 @@ void CodeWriter::writeReturn() {
 	// restore THIS
 	output_filestream << "// restore THIS"
 					  << std::endl;
-	output_filestream << "@14"
+	output_filestream << "@FRAME"
 					  << std::endl
 					  << "D=M"
 					  << std::endl
@@ -656,7 +656,7 @@ void CodeWriter::writeReturn() {
 	// restore ARG
 	output_filestream << "// restore ARG"
 					  << std::endl;
-	output_filestream << "@14"
+	output_filestream << "@FRAME"
 					  << std::endl
 					  << "D=M"
 					  << std::endl
@@ -676,7 +676,7 @@ void CodeWriter::writeReturn() {
 	// restore LCL
 	output_filestream << "// restore LCL"
 					  << std::endl;
-	output_filestream << "@F"
+	output_filestream << "@FRAME"
 					  << std::endl
 					  << "D=M"
 					  << std::endl
@@ -696,7 +696,7 @@ void CodeWriter::writeReturn() {
 	// goto retAddr
 	output_filestream << "// goto retAddr"
 					  << std::endl;
-	output_filestream << "@15"
+	output_filestream << "@RETADDR"
 					  << std::endl
 					  << "A=M"
 					  << std::endl

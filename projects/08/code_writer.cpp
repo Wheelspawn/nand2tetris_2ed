@@ -1,12 +1,15 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include "code_writer.h"
 
 CodeWriter::CodeWriter(const std::string& outFn) {
 	// constructor
 	output_filestream.open(outFn);
+	
+	filename = std::filesystem::path(outFn).stem().string();
 
 	eq_counter = 0;
 	gt_counter = 0;
@@ -175,9 +178,9 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			}
 			else if (segment == "static")
 			{
-				output_filestream << "// push static" << idx
+				output_filestream << "// push static: " << filename << "." << idx
 								  << std::endl;
-				output_filestream << "@16"
+				output_filestream << "@" << filename << "." << idx
 								  << std::endl
 								  << "D=A"
 								  << std::endl
@@ -270,9 +273,10 @@ void CodeWriter::writePushPop(CommandType command, const std::string& segment, i
 			}
 			else if (segment == "static")
 			{
-				output_filestream << "// pop static " << idx << std::endl;
+				output_filestream << "// pop static: " << filename << "." << idx
+								  << std::endl;
 				
-				output_filestream << "@" << std::to_string(16+idx)
+				output_filestream << "@" << filename << "." << idx
 								  << std::endl
 								  << "D=A"
 								  << std::endl;
@@ -703,4 +707,17 @@ void CodeWriter::writeReturn() {
 					  << "0;JMP"
 					  << std::endl;
 }
+
+void CodeWriter::writeInit() {
+	output_filestream << "Bootstrap code initialization" << std::endl;
+	// SP = 256
+	output_filestream << "@256" << std::endl;
+	output_filestream << "D=A" << std::endl;
+	output_filestream << "@SP" << std::endl;
+	output_filestream << "M=D" << std::endl;
+	// call Sys.init
+	writeCall("Sys.init", 0);
+}
+
+
 

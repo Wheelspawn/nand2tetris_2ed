@@ -18,8 +18,11 @@ class CodeWriter {
 		void writeFunction(const std::string& functionName, int nVars);
 		void writeCall(const std::string& functionName, int nArgs);
 		void writeReturn();
+		void writeInit();
 	private:
 		std::ofstream output_filestream;
+		std::string filename;
+		
 		int eq_counter;
 		int gt_counter;
 		int lt_counter;

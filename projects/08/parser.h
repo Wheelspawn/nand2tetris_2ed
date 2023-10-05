@@ -22,6 +22,7 @@ class Parser {
 		Parser(const std::string& inFn);
 		~Parser();
 		bool hasMoreLines();
+        void resetInputFileName(const std::string& inFn);
 		std::string advance();
 		CommandType commandType();
 		std::string arg0();

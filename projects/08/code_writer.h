@@ -10,6 +10,7 @@ class CodeWriter {
 	public:
 		CodeWriter(const std::string& outputFileName);
 		~CodeWriter();
+        void resetInputFileName(const std::string& inFn);
 		void writeArithmetic(const std::string& command);
 		void writePushPop(CommandType command, const std::string& segment, int idx);
 		void writeLabel(const std::string& label);

@@ -1,0 +1,12 @@
+
+class Egg {
+   constructor Egg new(int Ax, int Ay) {
+      return this;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+}
+

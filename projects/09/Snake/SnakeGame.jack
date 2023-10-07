@@ -1,0 +1,167 @@
+
+class SnakeGame {
+   
+   field Snake snake;
+   field Egg egg;
+                        
+   constructor SnakeGame new() {
+      return this;
+   }
+
+   method void dispose() {
+      do snake.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+   
+   method void drawEgg(int Ax, int Ay)
+   {
+      var int x;
+      var int y;
+      var String s;
+      var Array a;
+      
+      var String t;
+      
+      let x = 0;
+      let y = 0;
+      let s = "0000000000000000000000000000000000000011110000000000001111000000000011000011000000001100001100000011000000001100001100000000110000110000000011000011000000001100001100000000110000110000000011000011000000001100001100000000110000001111111100000000000000000000";
+
+      let a = Array.new(String.new("0000000000000000"),
+                        String.new("0000000000000000"),
+                        String.new("0000001111000000"),
+                        String.new("0000001111000000"),
+                        String.new("0000110000110000"),
+                        String.new("0000110000110000"),
+                        String.new("0011000000001100"),
+                        String.new("0011000000001100"),
+                        String.new("0011000000001100"),
+                        String.new("0011000000001100"),
+                        String.new("0011000000001100"),
+                        String.new("0011000000001100"),
+                        String.new("0000111111110000"),
+                        String.new("0000111111110000"),
+                        String.new("0000000000000000"),
+                        String.new("0000000000000000"));
+                       
+      /*
+      let a = Array.new(Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                       Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                       Array.new(0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0),
+                       Array.new(0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0),
+                       Array.new(0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0),
+                       Array.new(0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0),
+                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
+                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
+                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
+                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
+                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
+                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
+                       Array.new(0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0),
+                       Array.new(0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0),
+                       Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+                       Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)); */
+      
+      while (x < 16)
+      {
+         while (y < 16) {
+            
+            
+            if (s.charAt((16*x)+y) = 49)
+            {
+               do Screen.drawPixel(((Ax*16) + x), ((Ay*16) + y));
+            }
+            let y = y + 1;
+            do Memory.deAlloc(t);
+         }
+         let x = x + 1;
+         let y = 0;
+      }
+      let x = 0;
+      
+      return;
+   }
+   
+   method void drawBoundaryWalls()
+   {
+      var int x;
+      var int y;
+      
+      let x = 0;
+      let y = 1;      
+      
+      while (x < 32)
+      {
+         do drawBoundaryWall(x*16,0);
+         do drawBoundaryWall(x*16,240);
+         
+         let x = x+1;
+      }
+ 
+      while (y < 15)
+      {
+         do drawBoundaryWall(0,y*16);
+         do drawBoundaryWall(496,y*16);
+         
+         let y = y+1;
+      }
+      
+      return;
+   }
+   
+   method void drawBoundaryWall(int Ax, int Ay)
+   {
+      // 1st half
+      do Screen.drawLine(Ax,Ay,Ax+15,Ay);
+      do Screen.drawLine(Ax,Ay+1,Ax+15,Ay+1);
+      do Screen.drawRectangle(Ax+7,Ay+2,Ax+8,Ay+3);
+      do Screen.drawRectangle(Ax+14,Ay+2,Ax+15,Ay+3);
+      
+      do Screen.drawLine(Ax,Ay+4,Ax+15,Ay+4);
+      do Screen.drawLine(Ax,Ay+5,Ax+15,Ay+5);
+      do Screen.drawRectangle(Ax+0,Ay+6,Ax+1,Ay+7);
+      do Screen.drawRectangle(Ax+9,Ay+6,Ax+10,Ay+7);
+   
+      // 2nd half
+      do Screen.drawLine(Ax,Ay+8,Ax+15,Ay+8);
+      do Screen.drawLine(Ax,Ay+9,Ax+15,Ay+9);
+      do Screen.drawRectangle(Ax+7,Ay+10,Ax+8,Ay+11);
+      do Screen.drawRectangle(Ax+14,Ay+10,Ax+15,Ay+11);
+      
+      do Screen.drawLine(Ax,Ay+12,Ax+15,Ay+12);
+      do Screen.drawLine(Ax,Ay+13,Ax+15,Ay+13);
+      do Screen.drawRectangle(Ax+0,Ay+14,Ax+1,Ay+15);
+      do Screen.drawRectangle(Ax+9,Ay+14,Ax+10,Ay+15);
+      
+      return;
+   }
+
+   /** Runs the game: handles the user's inputs and moves the square accordingly */
+   method void run() {
+      var char key;  // the key currently pressed by the user
+      var boolean exit;
+      let exit = false;
+      
+      while (~exit) {
+         
+         do drawEgg(3,3);
+         // do drawBoundaryWalls();
+         
+         // waits for a key to be pressed
+         while (key = 0) {
+            let key = Keyboard.keyPressed();
+         }
+         
+         if (key = 81)  { let exit = true; }     // q key
+
+         // waits for the key to be released
+         while (~(key = 0)) {
+            let key = Keyboard.keyPressed();
+         }
+     } // while
+     return;
+   }
+}
+
+
+

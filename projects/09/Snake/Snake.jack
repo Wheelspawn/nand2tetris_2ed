@@ -1,0 +1,12 @@
+
+class Snake {
+   constructor Snake new(int Ax, int Ay, int Asize) {
+      return this;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+}
+

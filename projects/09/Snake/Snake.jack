@@ -1,11 +1,112 @@
 
 class Snake {
-   constructor Snake new(int Ax, int Ay, int Asize) {
+   
+   field int xpos;
+   field int ypos;
+   field int dir;
+   
+   // body segments are linked, positioned and drawn back to front which eliminates needing to delete or move the tail end and write complex code for managing it.
+   // when a new segment gets added, it gets added between the head and the segment adjacent to the head. This means it gets added at the base of the recursive calls.
+   // only the tail is linked to the head, so there is no need to adjust any pointers.
+   field Segment tail;
+   
+   field DrawHelper drawhelper;
+   field String graphic;
+   
+   constructor Snake new(int Ax, int Ay, Draw d) {
+      
+      let xpos = Ax;
+      let ypos = Ay;
+      
+      let drawhelper = d;
+      let graphic = "1111111111111111111111111111111111000000000000111100000000000011110011000011001111001100001100111100000000000011110000000000001111001100001100111100110000110011110011111111001111001111111100111100000000000011110000000000001111111111111111111111111111111111";
+      
       return this;
    }
 
    method void dispose() {
       do Memory.deAlloc(this);
+      return;
+   }
+   
+   method int getXPos()
+   {
+      return xpos;
+   }
+   
+   method int getYPos()
+   {
+      return ypos;
+   }
+   
+   method int getDir()
+   {
+      return dir;
+   }
+   
+   
+   method void moveBody()
+   {
+      if (~(tail = null))
+      {
+         do tail.setXPos(xpos);
+         do tail.setYPos(ypos);
+      }
+      
+      return;
+   }
+   
+   method void growBody()
+   {
+      if (tail = null)
+      {
+         let tail = Segment.new(xpos, ypos, drawhelper);
+      }
+      return;
+   }
+   
+   method void moveUp()
+   {
+      do moveBody();
+      let ypos = ypos - 1;
+      return;
+   }
+   
+   method void moveDown()
+   {
+      do moveBody();
+      let ypos = ypos + 1;
+      return;
+   }
+   
+   method void moveLeft()
+   {
+      do moveBody();
+      let xpos = xpos - 1;
+      return;
+   }
+   
+   method void moveRight()
+   {
+      do moveBody();
+      let xpos = xpos + 1;
+      return;
+   }
+   
+   method bool collidesWith(int Ax, int Ay)
+   {
+      return (((Ax = xpos) & (Ay = ypos)) | seg.collidesWith(Ax, Ay));
+   }
+   
+   method void draw(bool clear)
+   {
+      do drawhelper.draw(xpos, ypos, graphic, clear);
+      
+      if (~(tail = null))
+      {
+         do tail.draw(clear);
+      }
+      
       return;
    }
 }

@@ -1,6 +1,20 @@
 
 class Egg {
-   constructor Egg new(int Ax, int Ay) {
+
+   field int xpos;
+   field int ypos;
+   
+   field DrawHelper drawhelper;
+   field String graphic;
+      
+   constructor Egg new(int Ax, int Ay, Draw d) {
+   
+      let xpos = Ax;
+      let ypos = Ay;
+      
+      let drawhelper = d;
+      let graphic = "0000000000000000000000000000000000000011110000000000001111000000000011000011000000001100001100000011000000001100001100000000110000110000000011000011000000001100001100000000110000110000000011000000111111110000000011111111000000000000000000000000000000000000";
+      
       return this;
    }
 
@@ -8,5 +22,63 @@ class Egg {
       do Memory.deAlloc(this);
       return;
    }
+   
+   method int getXPos()
+   {
+      return xpos;
+   }
+   
+   method int getYPos()
+   {
+      return ypos;
+   }
+
+   method void setXPos(int Ax)
+   {
+      let xpos = Ax;
+      return;
+   }
+   
+   method void setYPos(int Ay)
+   {
+      let ypos = Ay;
+      return;
+   }
+   
+   method void draw(bool clear)
+   {
+      do drawhelper.draw(xpos, ypos, graphic, clear);
+      return;
+   }
+   
+   /**
+   method void draw()
+   {
+      var int x;
+      var int y;
+      var String s;
+      
+      let x = 0;
+      let y = 0;
+      let s = "0000000000000000000000000000000000000011110000000000001111000000000011000011000000001100001100000011000000001100001100000000110000110000000011000011000000001100001100000000110000110000000011000000111111110000000011111111000000000000000000000000000000000000";
+      
+      while (y < 16)
+      {
+         while (x < 16) {
+            
+            if (s.charAt((16*y)+x) = 49)
+            {
+               do Screen.drawPixel(((Ax*16) + x), ((Ay*16) + y));
+            }
+            let x = x + 1;
+         }
+         let y = y + 1;
+         let x = 0;
+      }
+      let y = 0;
+      
+      return;
+   }
+   */
 }
 

@@ -1,10 +1,43 @@
 
+// Snake takes place on a 32x16 board. Only rows 2-14 and 1-30 are accessible, hence the restrictions on randRange.
+
 class SnakeGame {
+
+   field Random rand;
+   field DrawHelper drawhelper;
    
    field Snake snake;
    field Egg egg;
-                        
+   field int score;
+   field int direction; // 0=none, 1=up, 2=down, 3=left, 4=right
+   
    constructor SnakeGame new() {
+      var int snake_xpos;
+      var int snake_ypos;
+      var int egg_xpos;
+      var int egg_ypos;
+      
+      let rand = Random.setSeed(1933);
+      
+      let snake_xpos = 6 + Random.randRange(24);
+      let snake_ypos = 6 + Random.randRange(8);
+      
+      let egg_xpos = 2 + Random.randRange(28);
+      let egg_ypos = 2 + Random.randRange(12);
+      
+      let drawhelper = DrawHelper.new();
+      let snake = Snake.new(snake_xpos, snake_ypos, drawhelper);
+      let egg = Egg.new(egg_xpos, egg_ypos, drawhelper);
+      
+      let direction = 3;
+      let score = 0;
+      
+      do Output.moveCursor(0,0);
+      do Output.printString("Score: ");
+      do Output.printInt(score);
+      do Output.printString(" ");
+      do drawBoundaryWalls();
+      
       return this;
    }
 
@@ -14,85 +47,17 @@ class SnakeGame {
       return;
    }
    
-   method void drawEgg(int Ax, int Ay)
-   {
-      var int x;
-      var int y;
-      var String s;
-      var Array a;
-      
-      var String t;
-      
-      let x = 0;
-      let y = 0;
-      let s = "0000000000000000000000000000000000000011110000000000001111000000000011000011000000001100001100000011000000001100001100000000110000110000000011000011000000001100001100000000110000110000000011000011000000001100001100000000110000001111111100000000000000000000";
-
-      let a = Array.new(String.new("0000000000000000"),
-                        String.new("0000000000000000"),
-                        String.new("0000001111000000"),
-                        String.new("0000001111000000"),
-                        String.new("0000110000110000"),
-                        String.new("0000110000110000"),
-                        String.new("0011000000001100"),
-                        String.new("0011000000001100"),
-                        String.new("0011000000001100"),
-                        String.new("0011000000001100"),
-                        String.new("0011000000001100"),
-                        String.new("0011000000001100"),
-                        String.new("0000111111110000"),
-                        String.new("0000111111110000"),
-                        String.new("0000000000000000"),
-                        String.new("0000000000000000"));
-                       
-      /*
-      let a = Array.new(Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-                       Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-                       Array.new(0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0),
-                       Array.new(0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0),
-                       Array.new(0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0),
-                       Array.new(0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0),
-                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
-                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
-                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
-                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
-                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
-                       Array.new(0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0),
-                       Array.new(0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0),
-                       Array.new(0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0),
-                       Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-                       Array.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)); */
-      
-      while (x < 16)
-      {
-         while (y < 16) {
-            
-            
-            if (s.charAt((16*x)+y) = 49)
-            {
-               do Screen.drawPixel(((Ax*16) + x), ((Ay*16) + y));
-            }
-            let y = y + 1;
-            do Memory.deAlloc(t);
-         }
-         let x = x + 1;
-         let y = 0;
-      }
-      let x = 0;
-      
-      return;
-   }
-   
    method void drawBoundaryWalls()
    {
       var int x;
       var int y;
       
       let x = 0;
-      let y = 1;      
+      let y = 2;      
       
       while (x < 32)
       {
-         do drawBoundaryWall(x*16,0);
+         do drawBoundaryWall(x*16,16);
          do drawBoundaryWall(x*16,240);
          
          let x = x+1;
@@ -136,28 +101,85 @@ class SnakeGame {
       return;
    }
 
-   /** Runs the game: handles the user's inputs and moves the square accordingly */
+   method void moveSnake() {
+      if (direction = 1) { do snake.moveUp(); }
+      if (direction = 2) { do snake.moveDown(); }
+      if (direction = 3) { do snake.moveLeft(); }
+      if (direction = 4) { do snake.moveRight(); }
+      return;
+   }
+   
+   method void handleEggConsumed() {
+   
+      var int new_xpos;
+      var int new_ypos;
+         
+      if ((snake.getXPos() = egg.getXPos()) & (snake.getYPos() = egg.getYPos()))
+      {
+         
+         let new_xpos = 2 + Random.randRange(28);
+         let new_ypos = 2 + Random.randRange(12);
+         
+         /**
+         while (~snake.collidesWith(new_xpos,new_ypos))
+         {
+            let new_xpos = 2 + Random.randRange(28);
+            let new_ypos = 2 + Random.randRange(12);
+         } */
+         
+         do egg.draw(true);
+         
+         do egg.setXPos(new_xpos);
+         do egg.setYPos(new_ypos);
+         
+         do snake.growBody();
+         
+         let score = score + 1;
+         do Output.moveCursor(0,0);
+         do Output.printString("Score: ");
+         do Output.printInt(score);
+         do Output.printString(" ");
+      }
+      else
+      {
+         do egg.draw(false);
+      }
+      
+      return;
+   }
+   
    method void run() {
+   
+      var int delay;
+         
       var char key;  // the key currently pressed by the user
       var boolean exit;
       let exit = false;
+      let delay = 0;
       
       while (~exit) {
          
-         do drawEgg(3,3);
-         // do drawBoundaryWalls();
+         let key = Keyboard.keyPressed();
          
-         // waits for a key to be pressed
-         while (key = 0) {
+         while (delay < 250)
+         {
             let key = Keyboard.keyPressed();
+            do Sys.wait(1);  // delays the next movement
+            let delay = delay + 1;
+            
+            if (key = 81)  { let exit = true; }     // q key
+            if (key = 131) { let direction = 1; }   // up arrow
+            if (key = 133) { let direction = 2; }   // down arrow
+            if (key = 130) { let direction = 3; }   // left arrow
+            if (key = 132) { let direction = 4; }   // right arrow
          }
+         let delay = 0;
          
-         if (key = 81)  { let exit = true; }     // q key
-
-         // waits for the key to be released
-         while (~(key = 0)) {
-            let key = Keyboard.keyPressed();
-         }
+         do snake.draw(true);
+         do moveSnake();
+         do handleEggConsumed();
+         do snake.draw(false);
+         
      } // while
      return;
    }

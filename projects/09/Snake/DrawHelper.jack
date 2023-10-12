@@ -1,0 +1,51 @@
+class DrawHelper {
+   
+   field int xpos;
+   field int ypos;
+   
+   constructor DrawHelper new() {
+      return this;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+   
+
+   method void draw(int Ax, int Ay, String graphic, bool clear)
+   {
+      var int x;
+      var int y;
+      
+      let x = 0;
+      let y = 0;
+      
+      if (clear = true)
+      {
+         do Screen.setColor(false);
+      }
+      
+      while (y < 16)
+      {
+         while (x < 16) {
+            
+            if (graphic.charAt((16*y)+x) = 49)
+            {
+               do Screen.drawPixel(((Ax*16) + x), ((Ay*16) + y));
+            }
+            let x = x + 1;
+         }
+         let y = y + 1;
+         let x = 0;
+      }
+      let y = 0;
+      
+      if (clear = true)
+      {
+         do Screen.setColor(true);
+      }
+      
+      return;
+   }
+}

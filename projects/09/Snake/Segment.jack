@@ -1,0 +1,103 @@
+
+class Segment {
+
+   field Segment linkedSeg;
+   
+   field int xpos;
+   field int ypos;
+   
+   field DrawHelper drawhelper;
+   field String graphic;
+   
+   constructor Segment new(int Ax, int Ay, Draw d) {
+      
+      let xpos = Ax;
+      let ypos = Ay;
+      
+      let drawhelper = d;
+      let graphic = "0000000000000000000000000000000000001111111100000000111111110000001100000000110000110000000011000011000000001100001100000000110000110000000011000011000000001100001100000000110000110000000011000000111111110000000011111111000000000000000000000000000000000000";
+      
+      return this;
+   }
+
+   method void dispose() {
+      do draw(true);
+      do Memory.deAlloc(this);
+      return;
+   }
+   
+   method Segment getLinkedSeg() {
+      return linkedSeg;
+   }
+   
+   
+   method void setLinkedSeg(Segment s) {
+      let linkedSeg = s;
+      return;
+   }
+   
+   method int getXPos()
+   {
+      return xpos;
+   }
+   
+   method int getYPos()
+   {
+      return ypos;
+   }
+
+   method void setXPos(int Ax)
+   {
+      let xpos = Ax;
+      return;
+   }
+   
+   method void setYPos(int Ay)
+   {
+      let ypos = Ay;
+      return;
+   }
+   
+   method void moveUp()
+   {
+      let ypos = ypos - 1;
+      return;
+   }
+   
+   method void moveDown()
+   {
+      let ypos = ypos + 1;
+      return;
+   }
+   
+   method void moveLeft()
+   {
+      let xpos = xpos - 1;
+      return;
+   }
+   
+   method void moveRight()
+   {
+      let xpos = xpos + 1;
+      return;
+   }
+   
+   method bool collidesWith(int Ax, int Ay)
+   {
+      if (linkedSeg = null)
+      {
+         return ((Ax = xpos) & (Ay = ypos));
+      }
+      else
+      {
+         return (((Ax = xpos) & (Ay = ypos)) | seg.collidesWith(Ax, Ay));
+      }
+   }
+   
+   method void draw(bool clear)
+   {
+      do drawhelper.draw(xpos, ypos, graphic, clear);
+      return;
+   }
+}
+

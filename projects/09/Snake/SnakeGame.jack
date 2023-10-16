@@ -19,8 +19,8 @@ class SnakeGame {
       
       let rand = Random.setSeed(1933);
       
-      let snake_xpos = 6 + Random.randRange(24);
-      let snake_ypos = 6 + Random.randRange(8);
+      let snake_xpos = 4 + Random.randRange(22);
+      let snake_ypos = 4 + Random.randRange(8);
       
       let egg_xpos = 2 + Random.randRange(28);
       let egg_ypos = 2 + Random.randRange(12);
@@ -29,7 +29,7 @@ class SnakeGame {
       let snake = Snake.new(snake_xpos, snake_ypos, drawhelper);
       let egg = Egg.new(egg_xpos, egg_ypos, drawhelper);
       
-      let direction = 3;
+      let direction = Random.randRange(4);
       let score = 0;
       
       do Output.moveCursor(0,0);
@@ -42,7 +42,13 @@ class SnakeGame {
    }
 
    method void dispose() {
+   
+      do Screen.clearScreen();
+      
       do snake.dispose();
+      do egg.dispose();
+      do drawhelper.dispose();
+      
       do Memory.deAlloc(this);
       return;
    }
@@ -109,7 +115,7 @@ class SnakeGame {
       return;
    }
    
-   method void handleEggConsumed() {
+   method bool eggConsumed() {
    
       var int new_xpos;
       var int new_ypos;
@@ -120,17 +126,16 @@ class SnakeGame {
          let new_xpos = 2 + Random.randRange(28);
          let new_ypos = 2 + Random.randRange(12);
          
-         /**
-         while (~snake.collidesWith(new_xpos,new_ypos))
+         if (snake.collidesWithEgg(new_xpos,new_ypos))
          {
             let new_xpos = 2 + Random.randRange(28);
             let new_ypos = 2 + Random.randRange(12);
-         } */
+         }
          
          do egg.draw(true);
-         
          do egg.setXPos(new_xpos);
          do egg.setYPos(new_ypos);
+         do egg.draw(false);
          
          do snake.growBody();
          
@@ -139,29 +144,83 @@ class SnakeGame {
          do Output.printString("Score: ");
          do Output.printInt(score);
          do Output.printString(" ");
+         
+         return true;
       }
       else
       {
          do egg.draw(false);
+         
+         return false;
       }
       
-      return;
+   }
+   
+   method bool restartGame() {
+   
+      var char key;
+      
+      do Output.moveCursor(0,12);
+      do Output.printString("You have died! Continue? (y/n)");
+         
+      let key = Keyboard.readChar();
+      
+      while ( ~( (key = 78) | (key = 110) ) )
+      {
+         if ((key = 121) | (key = 89)) // if key = 'y' or 'Y'
+         {
+            do Screen.clearScreen();
+            
+            do snake.setXPos(4 + Random.randRange(22));
+            do snake.setYPos(4 + Random.randRange(8));
+            
+            do snake.makeAlive();
+            
+            do egg.setXPos(2 + Random.randRange(28));
+            do egg.setYPos(2 + Random.randRange(12));
+            
+            while ((egg.getXPos() = snake.getXPos()) & (egg.getYPos() = snake.getYPos()))
+            {
+               do egg.setXPos(2 + Random.randRange(28));
+               do egg.setYPos(2 + Random.randRange(12));
+               
+            }
+            
+            let direction = Random.randRange(4);
+            
+            let score = 0;
+            do Output.moveCursor(0,0);
+            do Output.printString("Score: ");
+            do Output.printInt(score);
+            do Output.printString(" ");
+            
+            do drawBoundaryWalls();
+            
+            return true;
+         }
+         
+         let key = Keyboard.readChar();
+      }
+      
+      return false;
    }
    
    method void run() {
    
       var int delay;
+      var int rate;
          
-      var char key;  // the key currently pressed by the user
+      var char key;
       var boolean exit;
       let exit = false;
       let delay = 0;
+      let rate = 175;
       
       while (~exit) {
          
          let key = Keyboard.keyPressed();
          
-         while (delay < 250)
+         while (delay < rate)
          {
             let key = Keyboard.keyPressed();
             do Sys.wait(1);  // delays the next movement
@@ -177,10 +236,20 @@ class SnakeGame {
          
          do snake.draw(true);
          do moveSnake();
-         do handleEggConsumed();
+         if (eggConsumed() & (rate > 50))
+         {
+            let rate = rate - 1;
+         }
          do snake.draw(false);
          
-     } // while
+         if (snake.outOfBounds() | snake.collidesWithItself())
+         {
+            do snake.makeDead();
+            let exit = ~restartGame();
+            let rate = 175;
+         }
+     }
+     
      return;
    }
 }

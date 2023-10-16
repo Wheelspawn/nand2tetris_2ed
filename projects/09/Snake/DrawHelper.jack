@@ -3,7 +3,12 @@ class DrawHelper {
    field int xpos;
    field int ypos;
    
+   field String graphic;
+   
    constructor DrawHelper new() {
+   
+      let graphic = "0000000000000000000000000000000000001111111100000000111111110000001100000000110000110000000011000011000000001100001100000000110000110000000011000011000000001100001100000000110000110000000011000000111111110000000011111111000000000000000000000000000000000000";
+      
       return this;
    }
 
@@ -12,7 +17,6 @@ class DrawHelper {
       return;
    }
    
-
    method void draw(int Ax, int Ay, String graphic, bool clear)
    {
       var int x;
@@ -23,7 +27,8 @@ class DrawHelper {
       
       if (clear = true)
       {
-         do Screen.setColor(false);
+         do clear16(Ax, Ay);
+         return;
       }
       
       while (y < 16)
@@ -45,6 +50,22 @@ class DrawHelper {
       {
          do Screen.setColor(true);
       }
+      
+      return;
+   }
+
+   method void clear16(int Ax, int Ay)
+   {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(Ax*16, Ay*16, Ax*16+15, Ay*16+15);
+      do Screen.setColor(true);
+      
+      return;
+   }
+   
+   method void drawSegment(int Ax, int Ay, bool clear)
+   {
+      do draw(Ax, Ay, graphic, clear);
       
       return;
    }

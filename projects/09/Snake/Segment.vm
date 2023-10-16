@@ -1,0 +1,229 @@
+function Segment.new 0
+push constant 4
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 1
+push argument 1
+pop this 2
+push argument 2
+pop this 3
+push pointer 0
+return
+function Segment.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+call Segment.dispose 1
+pop temp 0
+push constant 0
+pop this 0
+label IF_FALSE0
+push pointer 0
+push constant 0
+not
+call Segment.draw 2
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Segment.getLinkedSeg 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Segment.setLinkedSeg 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 0
+push constant 0
+return
+function Segment.moveSegmentRecursive 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+push this 0
+call Segment.getXPos 1
+call Segment.setXPos 2
+pop temp 0
+push pointer 0
+push this 0
+call Segment.getYPos 1
+call Segment.setYPos 2
+pop temp 0
+push this 0
+push argument 1
+push argument 2
+call Segment.moveSegmentRecursive 3
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push pointer 0
+push argument 1
+call Segment.setXPos 2
+pop temp 0
+push pointer 0
+push argument 2
+call Segment.setYPos 2
+pop temp 0
+push pointer 0
+push constant 0
+call Segment.draw 2
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Segment.addSegmentRecursive 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+push constant 0
+call Segment.draw 2
+pop temp 0
+push this 0
+push argument 1
+push argument 2
+call Segment.addSegmentRecursive 3
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push argument 1
+push argument 2
+push this 3
+call Segment.new 3
+pop this 0
+label IF_END0
+push constant 0
+return
+function Segment.getXPos 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Segment.getYPos 0
+push argument 0
+pop pointer 0
+push this 2
+return
+function Segment.setXPos 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 1
+push constant 0
+return
+function Segment.setYPos 0
+push argument 0
+pop pointer 0
+push argument 1
+pop this 2
+push constant 0
+return
+function Segment.moveUp 0
+push argument 0
+pop pointer 0
+push this 2
+push constant 1
+sub
+pop this 2
+push constant 0
+return
+function Segment.moveDown 0
+push argument 0
+pop pointer 0
+push this 2
+push constant 1
+add
+pop this 2
+push constant 0
+return
+function Segment.moveLeft 0
+push argument 0
+pop pointer 0
+push this 1
+push constant 1
+sub
+pop this 1
+push constant 0
+return
+function Segment.moveRight 0
+push argument 0
+pop pointer 0
+push this 1
+push constant 1
+add
+pop this 1
+push constant 0
+return
+function Segment.collidesWith 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+goto IF_END0
+label IF_FALSE0
+push argument 1
+push this 1
+eq
+push argument 2
+push this 2
+eq
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+not
+return
+goto IF_END1
+label IF_FALSE1
+push constant 0
+push this 0
+push argument 1
+push argument 2
+call Segment.collidesWith 3
+or
+return
+label IF_END1
+label IF_END0
+function Segment.draw 0
+push argument 0
+pop pointer 0
+push this 3
+push this 1
+push this 2
+push argument 1
+call DrawHelper.drawSegment 4
+pop temp 0
+push constant 0
+return

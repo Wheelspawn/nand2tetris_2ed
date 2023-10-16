@@ -14,7 +14,7 @@ class Snake {
    field String graphic;
    
    constructor Snake new(int Ax, int Ay, Draw d) {
-      
+   
       let xpos = Ax;
       let ypos = Ay;
       
@@ -25,6 +25,12 @@ class Snake {
    }
 
    method void dispose() {
+      
+      if (~(tail = null))
+      {
+         do tail.dispose();
+      }
+      do draw(true);
       do Memory.deAlloc(this);
       return;
    }
@@ -39,18 +45,29 @@ class Snake {
       return ypos;
    }
    
+   method void setXPos(int Ax)
+   {
+      let xpos = Ax;
+      return;
+   }
+   
+   method void setYPos(int Ay)
+   {
+      let ypos = Ay;
+      return;
+   }
+   
    method int getDir()
    {
       return dir;
    }
    
-   
    method void moveBody()
    {
       if (~(tail = null))
       {
-         do tail.setXPos(xpos);
-         do tail.setYPos(ypos);
+         do tail.draw(true);
+         do tail.moveSegmentRecursive(xpos, ypos);
       }
       
       return;
@@ -61,6 +78,10 @@ class Snake {
       if (tail = null)
       {
          let tail = Segment.new(xpos, ypos, drawhelper);
+      }
+      else
+      {
+         do tail.addSegmentRecursive(xpos, ypos);
       }
       return;
    }
@@ -93,9 +114,62 @@ class Snake {
       return;
    }
    
-   method bool collidesWith(int Ax, int Ay)
+   method bool collidesWith()
    {
-      return (((Ax = xpos) & (Ay = ypos)) | seg.collidesWith(Ax, Ay));
+      if (tail = null)
+      {
+         return false;
+      }
+      else
+      {
+         return tail.collidesWith(xpos, ypos);
+      }
+   }
+   
+   method bool collidesWithItself()
+   {
+      return collidesWith();
+   }
+   
+   method bool collidesWithEgg(int Ax, int Ay)
+   {
+      return ((Ax = xpos) & (Ay = ypos));
+   }
+   
+   method bool outOfBounds()
+   {
+      return ( (xpos = 0) | (ypos = 1) | (xpos = 31) | (ypos = 15) );
+   }
+   
+   method void makeDead()
+   {
+      var String dead_face;
+      let dead_face = "1111111111111111111111111111111111000000000000111100000000000011110011000011001111001100001100111100000000000011110000000000001111001111111100111100111111110011110011000011001111001100001100111100000000000011110000000000001111111111111111111111111111111111";
+      
+      let graphic = dead_face;
+      
+      if (~(tail = null))
+      {
+         do tail.dispose();
+         let tail = null;
+      }
+      
+      do drawhelper.clear16(xpos, ypos);
+      do draw(false);
+      
+      return;
+   }
+
+   method void makeAlive()
+   {
+      var String alive_face;
+      let alive_face = "1111111111111111111111111111111111000000000000111100000000000011110011000011001111001100001100111100000000000011110000000000001111001100001100111100110000110011110011111111001111001111111100111100000000000011110000000000001111111111111111111111111111111111";
+      
+      let graphic = alive_face;
+      do drawhelper.clear16(xpos, ypos);
+      do draw(false);
+      
+      return;
    }
    
    method void draw(bool clear)

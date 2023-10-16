@@ -7,7 +7,6 @@ class Segment {
    field int ypos;
    
    field DrawHelper drawhelper;
-   field String graphic;
    
    constructor Segment new(int Ax, int Ay, Draw d) {
       
@@ -15,12 +14,16 @@ class Segment {
       let ypos = Ay;
       
       let drawhelper = d;
-      let graphic = "0000000000000000000000000000000000001111111100000000111111110000001100000000110000110000000011000011000000001100001100000000110000110000000011000011000000001100001100000000110000110000000011000000111111110000000011111111000000000000000000000000000000000000";
       
       return this;
    }
 
    method void dispose() {
+      if (~(linkedSeg = null))
+      {
+         do linkedSeg.dispose();
+         let linkedSeg = null;
+      }
       do draw(true);
       do Memory.deAlloc(this);
       return;
@@ -30,9 +33,38 @@ class Segment {
       return linkedSeg;
    }
    
-   
    method void setLinkedSeg(Segment s) {
       let linkedSeg = s;
+      return;
+   }
+   
+   method void moveSegmentRecursive(int Ax, int Ay) {
+      if (~(linkedSeg=null))
+      {
+         do setXPos(linkedSeg.getXPos());
+         do setYPos(linkedSeg.getYPos());
+         
+         do linkedSeg.moveSegmentRecursive(Ax, Ay);
+      }
+      else
+      {
+         do setXPos(Ax);
+         do setYPos(Ay);
+         do draw(false);
+      }
+      return;
+   }
+   
+   method void addSegmentRecursive(int Ax, int Ay) {
+      if (~(linkedSeg=null))
+      {
+         do linkedSeg.draw(false);
+         do linkedSeg.addSegmentRecursive(Ax, Ay);
+      }
+      else
+      {
+         let linkedSeg = Segment.new(Ax, Ay, drawhelper);
+      }
       return;
    }
    
@@ -86,17 +118,24 @@ class Segment {
    {
       if (linkedSeg = null)
       {
-         return ((Ax = xpos) & (Ay = ypos));
+         return false;
       }
       else
       {
-         return (((Ax = xpos) & (Ay = ypos)) | seg.collidesWith(Ax, Ay));
+         if ((Ax = xpos) & (Ay = ypos))
+         {
+            return true;
+         }
+         else
+         {
+            return (false | linkedSeg.collidesWith(Ax, Ay));
+         }
       }
    }
    
    method void draw(bool clear)
    {
-      do drawhelper.draw(xpos, ypos, graphic, clear);
+      do drawhelper.drawSegment(xpos, ypos, clear);
       return;
    }
 }

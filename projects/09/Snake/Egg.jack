@@ -32,7 +32,7 @@ class Egg {
    {
       return ypos;
    }
-
+   
    method void setXPos(int Ax)
    {
       let xpos = Ax;

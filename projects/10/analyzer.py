@@ -27,8 +27,40 @@ class JackTokenizer():
     
     def __init__(self, file):
         with open(file, 'r') as f:
-            data = f.read().replace('\n', '')
-            print(data)
+
+            # read file
+            data = f.read()
+
+            # remove comments
+            while ("/**" in data):
+                i = data.find("/**")
+                j = data.find("*/")
+                data = data[:i] + data[(j+2):]
+
+            while ("//" in data):
+                i = data.find("//")
+                j = data[(i+2):].find("\n")
+                data = data[:i] + data[(i+j+2):]
+            
+            data = data.replace('\n', '')
+            data = data.replace('\t', '')
+
+            # separate symbols from alphanumeric text
+            # data = data.replace("\"", " \" ")
+
+            data = data.split("\"")
+            '''
+            for symbol in symbols:
+                data = data.replace(symbol, ' ' + symbol + ' ')
+
+            data = data.split(" ")
+            
+            while '' in data:
+                data.remove('')
+            '''
+
+            for thing in data:
+                print(thing)
             
     def hasMoreTokens(self):
         pass

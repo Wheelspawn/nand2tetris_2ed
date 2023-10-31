@@ -1,6 +1,6 @@
-import sys
 import os
-
+import re
+import sys
 import xml.etree.ElementTree as ET
 
 from enum import Enum
@@ -32,6 +32,7 @@ class JackTokenizer():
             data = f.read()
 
             # remove comments
+
             while ("/**" in data):
                 i = data.find("/**")
                 j = data.find("*/")
@@ -41,15 +42,19 @@ class JackTokenizer():
                 i = data.find("//")
                 j = data[(i+2):].find("\n")
                 data = data[:i] + data[(i+j+2):]
+
+            data = self.tokenize(data)
+            print(data)
+            
+            '''
             
             data = data.replace('\n', '')
             data = data.replace('\t', '')
 
             # separate symbols from alphanumeric text
-            # data = data.replace("\"", " \" ")
-
-            data = data.split("\"")
-            '''
+            
+            data = data.replace("\"", " \" ")
+                        
             for symbol in symbols:
                 data = data.replace(symbol, ' ' + symbol + ' ')
 
@@ -57,11 +62,24 @@ class JackTokenizer():
             
             while '' in data:
                 data.remove('')
+                
+            print(data)
+            for d in data:
+                print(d)
             '''
 
-            for thing in data:
-                print(thing)
-            
+    def tokenize(self, input_str):
+        # Define a regex pattern to match identifiers, symbols, and string constants
+        pattern = re.compile(r'([a-zA-Z_]\w*)|(\d+)|(".*?")|([{}()[\].,;+\-*/&|<>=~])')
+        
+        # Find all matches in the input string
+        tokens = pattern.findall(input_str)
+        
+        # The result is a list of tuples, we will flatten it and remove empty strings
+        tokens = [token for group in tokens for token in group if token]
+        
+        return tokens
+
     def hasMoreTokens(self):
         pass
     

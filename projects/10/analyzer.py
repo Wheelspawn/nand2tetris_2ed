@@ -6,13 +6,36 @@ import xml.etree.ElementTree as ET
 from enum import Enum
 
 class TokenType(Enum):
-    KEYWORD = 1
-    SYMBOL = 2
-    IDENTIFIER = 3
-    INT_CONST = 4
-    STRING_CONST = 5
-    UNKNOWN = 6
+    KEYWORD = 0
+    SYMBOL = 1
+    IDENTIFIER = 2
+    INT_CONST = 3
+    STRING_CONST = 4
+    UNKNOWN = 5
 
+class KeyWord(Enum):
+    CLASS = 0
+    CONSTRUCTOR = 1
+    FUNCTION = 2
+    METHOD = 3
+    FIELD = 4
+    STATIC = 5
+    VAR = 6
+    INT = 7
+    CHAR = 8
+    BOOLEAN = 9
+    VOID = 10
+    TRUE = 11
+    FALSE = 12
+    NULL = 13
+    THIS = 14
+    LET = 15
+    DO = 16
+    IF = 17
+    ELSE = 18
+    WHILE = 19
+    RETURN = 20
+    
 keywords = ["class","constructor","function",
             "method","field","static","var",
             "int","char","boolean","void",
@@ -23,57 +46,35 @@ symbols = ["{","}","(",")","[","]",".",",",";","+","-","*","/","&","|","<",">","
 
 class JackTokenizer():
     
-    token = ""
+    data = None
+    tokens = []
+    currentToken = ''
+    i = 0
     
     def __init__(self, file):
         with open(file, 'r') as f:
 
             # read file
-            data = f.read()
+            self.data = f.read()
 
-            # remove comments
+    def tokenize(self):
+        
+        # remove comments
+        while ("/**" in self.data):
+            i = self.data.find("/**")
+            j = self.data.find("*/")
+            self.data = self.data[:i] + self.data[(j+2):]
 
-            while ("/**" in data):
-                i = data.find("/**")
-                j = data.find("*/")
-                data = data[:i] + data[(j+2):]
-
-            while ("//" in data):
-                i = data.find("//")
-                j = data[(i+2):].find("\n")
-                data = data[:i] + data[(i+j+2):]
-
-            data = self.tokenize(data)
-            print(data)
+        while ("//" in self.data):
+            i = self.data.find("//")
+            j = self.data[(i+2):].find("\n")
+            self.data = self.data[:i] + self.data[(i+j+2):]
             
-            '''
-            
-            data = data.replace('\n', '')
-            data = data.replace('\t', '')
-
-            # separate symbols from alphanumeric text
-            
-            data = data.replace("\"", " \" ")
-                        
-            for symbol in symbols:
-                data = data.replace(symbol, ' ' + symbol + ' ')
-
-            data = data.split(" ")
-            
-            while '' in data:
-                data.remove('')
-                
-            print(data)
-            for d in data:
-                print(d)
-            '''
-
-    def tokenize(self, input_str):
         # Define a regex pattern to match identifiers, symbols, and string constants
         pattern = re.compile(r'([a-zA-Z_]\w*)|(\d+)|(".*?")|([{}()[\].,;+\-*/&|<>=~])')
         
         # Find all matches in the input string
-        tokens = pattern.findall(input_str)
+        tokens = pattern.findall(self.data)
         
         # The result is a list of tuples, we will flatten it and remove empty strings
         tokens = [token for group in tokens for token in group if token]
@@ -81,41 +82,62 @@ class JackTokenizer():
         return tokens
 
     def hasMoreTokens(self):
-        pass
+        return (self.i < len(self.tokens))
     
     def advance(self):
-        pass
+        self.currentToken = self.tokens[self.i]
+        self.i += 1
+        return self.currentToken
     
     def tokenType(self):
-        if self.token in keywords:
+        if self.currentToken in keywords:
             return TokenType.KEYWORD
-        if self.token in symbols:
+        if re.match(r'[{}()[\].,;+\-*/&|<>=~]',self.currentToken):
             return TokenType.SYMBOL
-        if self.token.isnumeric():
+        if re.match(r'\d+',self.currentToken):
             return TokenType.INT_CONST
-        if self.token[0] == "\"" and self.token[-1] == "\"":
+        if re.match(r'"([^"\n]*)"', self.currentToken):
             return TokenType.STRING_CONST
+        if re.match(r'\b[a-zA-Z_]\w*\b', self.currentToken):
+            return TokenType.IDENTIFIER
         
-    
+        return TokenType.UNKNOWN
+        
     def keyWord(self):
-        pass
+        if self.tokenType() == TokenType.KEYWORD:
+            return list(KeyWord)[keywords.index(self.currentToken)]
+        else:
+            print("keyword is not of type TokenType.KEYWORD")
     
     def symbol(self):
-        pass
+        if self.tokenType() == TokenType.SYMBOL:
+            return self.currentToken
+        else:
+            print("keyword is not of type TokenType.SYMBOL")
     
     def identifier(self):
-        pass
+        if self.tokenType() == TokenType.IDENTIFIER:
+            return self.currentToken
+        else:
+            print("keyword is not of type TokenType.IDENTIFIER")
     
     def intVal(self):
-        pass
+        if self.tokenType() == TokenType.INT_CONST:
+            return int(self.currentToken)
+        else:
+            print("keyword is not of type TokenType.INT_CONST")
     
     def stringVal(self):
-        pass
+        if self.tokenType() == TokenType.STRING_CONST:
+            return self.currentToken
+        else:
+            print("keyword is not of type TokenType.STRING_CONST")
 
     
 class CompilationEngine():
-    def __init__(self):
-        pass
+    def __init__(self, file):
+        tokenizer = JackTokenizer(file)
+        print(tokenizer.tokenize())
     
     def compileClass(self):
         pass
@@ -175,12 +197,12 @@ if __name__ == '__main__':
             
             if file.lower().endswith('.jack'):
                 
-                tokenizer = JackTokenizer(file)
+                compiler = CompilationEngine(file)
     
     else:
         if arg.lower().endswith('.jack'):
             
-            tokenizer = JackTokenizer(arg)
+            compiler = CompilationEngine(arg)
             
         else:
             print(".jack file was not found")

@@ -80,12 +80,13 @@ class JackTokenizer():
         tokens = [token for group in tokens for token in group if token]
         
         self.tokens = tokens
-
+        self.currentToken = tokens[0]
+        
     def hasMoreTokens(self):
         return (self.i < len(self.tokens))
     
     def advance(self):
-        self.currentToken = self.tokens[self.i]
+        self.currentToken = self.tokens[self.i+1]
         self.i += 1
         return self.currentToken
 
@@ -93,24 +94,24 @@ class JackTokenizer():
         return self.currentToken
 
     def getNextToken(self):
-        if (self.i+i < len(self.tokens)):
+        if (self.i+1 < len(self.tokens)):
             return self.tokens[self.i+1]
         else:
             return ""
     
     def tokenType(self):
         if self.currentToken in keywords:
-            return TokenType.KEYWORD
+            return "KEYWORD"
         if re.match(r'[{}()[\].,;+\-*/&|<>=~]',self.currentToken):
-            return TokenType.SYMBOL
+            return "SYMBOL"
         if re.match(r'\d+',self.currentToken):
-            return TokenType.INT_CONST
+            return "INT_CONST"
         if re.match(r'"([^"\n]*)"', self.currentToken):
-            return TokenType.STRING_CONST
+            return "STRING_CONST"
         if re.match(r'\b[a-zA-Z_]\w*\b', self.currentToken):
-            return TokenType.IDENTIFIER
+            return "IDENTIFIER"
         
-        return TokenType.UNKNOWN
+        return "UNKNOWN"
         
     def keyWord(self):
         if self.tokenType() == TokenType.KEYWORD:
@@ -142,7 +143,6 @@ class JackTokenizer():
         else:
             print("keyword is not of type TokenType.STRING_CONST")
 
-    
 class CompilationEngine():
 
     inp = None
@@ -160,29 +160,31 @@ class CompilationEngine():
         self.outp.close()
 
     def process(self, s, increment=0):
+        print(s,"  ~~  ", self.tokenizer.getCurrentToken())
+        print()
+        
         if (s == self.tokenizer.getCurrentToken()):
-            self.outp.write("<" + tokenizer.tokenType() + "> ")
-            self.outp.write(tokenizer.getCurrentToken())
-            self.outp.write(" </" + tokenizer.tokenType() + ">")
-            self.outp.write("\n")
+            self.write("<" + self.tokenizer.tokenType() + "> ")
+            self.write(self.tokenizer.getCurrentToken())
+            self.write(" </" + self.tokenizer.tokenType() + ">")
+            self.write("\n")
         else:
-            print(s)
-            print("syntax error")
+            print("process: syntax error")
 
         self.tokenizer.advance()
 
     def write(self, s):
-        print(s)
         self.outp.write(s)
     
     def compileClass(self):
-        self.outp.write("<class>\n")
+        self.write("<class>")
         self.process("class")
-        self.outp.write(self.tokenizer.getCurrentToken())
+        self.process(self.tokenizer.getCurrentToken())
         self.process("{")
+        print(self.tokenizer.getCurrentToken())
 
         while (self.tokenizer.getCurrentToken() == "static" or self.tokenizer.getCurrentToken() == "field"):
-            compileClassVarDec()
+            self.compileClassVarDec()
 
         self.process("}")
             
@@ -191,17 +193,20 @@ class CompilationEngine():
             self.process("static")
             self.process(self.tokenizer.getCurrentToken())
             while (self.tokenizer.getNextToken() == ","):
+                self.process(self.tokenizer.getCurrentToken())
                 self.process(",")
-                self.process(self.tokenizer.getNextToken())
+            self.process(self.tokenizer.getCurrentToken())
             self.process(";")
         elif (self.tokenizer.getCurrentToken() == "field"):
             self.process("field")
             self.process(self.tokenizer.getCurrentToken())
             while (self.tokenizer.getNextToken() == ","):
+                self.process(self.tokenizer.getCurrentToken())
                 self.process(",")
-                self.process(self.tokenizer.getNextToken())
+            self.process(self.tokenizer.getCurrentToken())
+            self.process(";")
         else:
-            pass
+            print("compileClassVarDec: syntax error")
     
     def compileSubroutine(self):
         pass

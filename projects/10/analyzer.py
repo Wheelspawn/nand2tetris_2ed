@@ -79,7 +79,7 @@ class JackTokenizer():
         # The result is a list of tuples, we will flatten it and remove empty strings
         tokens = [token for group in tokens for token in group if token]
         
-        return tokens
+        self.tokens = tokens
 
     def hasMoreTokens(self):
         return (self.i < len(self.tokens))
@@ -88,6 +88,15 @@ class JackTokenizer():
         self.currentToken = self.tokens[self.i]
         self.i += 1
         return self.currentToken
+
+    def getCurrentToken(self):
+        return self.currentToken
+
+    def getNextToken(self):
+        if (self.i+i < len(self.tokens)):
+            return self.tokens[self.i+1]
+        else:
+            return ""
     
     def tokenType(self):
         if self.currentToken in keywords:
@@ -135,15 +144,64 @@ class JackTokenizer():
 
     
 class CompilationEngine():
-    def __init__(self, file):
-        tokenizer = JackTokenizer(file)
-        print(tokenizer.tokenize())
+
+    inp = None
+    outp = None
+    tokenizer = None
+    
+    def __init__(self, inp, outp):
+
+        self.outp = open(outp, 'w')
+        self.tokenizer = JackTokenizer(inp)
+        self.tokenizer.tokenize()
+
+        self.compileClass()
+
+        self.outp.close()
+
+    def process(self, s, increment=0):
+        if (s == self.tokenizer.getCurrentToken()):
+            self.outp.write("<" + tokenizer.tokenType() + "> ")
+            self.outp.write(tokenizer.getCurrentToken())
+            self.outp.write(" </" + tokenizer.tokenType() + ">")
+            self.outp.write("\n")
+        else:
+            print(s)
+            print("syntax error")
+
+        self.tokenizer.advance()
+
+    def write(self, s):
+        print(s)
+        self.outp.write(s)
     
     def compileClass(self):
-        pass
-    
+        self.outp.write("<class>\n")
+        self.process("class")
+        self.outp.write(self.tokenizer.getCurrentToken())
+        self.process("{")
+
+        while (self.tokenizer.getCurrentToken() == "static" or self.tokenizer.getCurrentToken() == "field"):
+            compileClassVarDec()
+
+        self.process("}")
+            
     def compileClassVarDec(self):
-        pass
+        if (self.tokenizer.getCurrentToken() == "static"):
+            self.process("static")
+            self.process(self.tokenizer.getCurrentToken())
+            while (self.tokenizer.getNextToken() == ","):
+                self.process(",")
+                self.process(self.tokenizer.getNextToken())
+            self.process(";")
+        elif (self.tokenizer.getCurrentToken() == "field"):
+            self.process("field")
+            self.process(self.tokenizer.getCurrentToken())
+            while (self.tokenizer.getNextToken() == ","):
+                self.process(",")
+                self.process(self.tokenizer.getNextToken())
+        else:
+            pass
     
     def compileSubroutine(self):
         pass
@@ -193,16 +251,19 @@ if __name__ == '__main__':
     
     if os.path.isdir(arg):
         
-        for file in os.listdir(arg):
-            
-            if file.lower().endswith('.jack'):
-                
-                compiler = CompilationEngine(file)
+        for inp in os.listdir(arg):
+
+            if inp.endswith('.jack'):
+
+                outp = inp[:-4] + 'hack'
+                compiler = CompilationEngine(inp,outp)
     
     else:
-        if arg.lower().endswith('.jack'):
-            
-            compiler = CompilationEngine(arg)
+        if arg.endswith('.jack'):
+
+            # arg is jack file
+            outp = arg[:-4] + 'new.xml'
+            compiler = CompilationEngine(arg,outp)
             
         else:
             print(".jack file was not found")

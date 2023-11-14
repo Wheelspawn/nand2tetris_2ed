@@ -177,14 +177,20 @@ class CompilationEngine():
         self.outp.write(s)
     
     def compileClass(self):
+        print(self.tokenizer.tokens)
         self.write("<class>")
         self.process("class")
         self.process(self.tokenizer.getCurrentToken())
         self.process("{")
-        print(self.tokenizer.getCurrentToken())
 
-        while (self.tokenizer.getCurrentToken() == "static" or self.tokenizer.getCurrentToken() == "field"):
+        while (self.tokenizer.getCurrentToken() == "static" or
+               self.tokenizer.getCurrentToken() == "field"):
             self.compileClassVarDec()
+
+        while (self.tokenizer.getCurrentToken() == "constructor" or
+               self.tokenizer.getCurrentToken() == "function" or
+               self.tokenizer.getCurrentToken() == "method"):
+            self.compileSubroutine()
 
         self.process("}")
             
@@ -192,24 +198,32 @@ class CompilationEngine():
         if (self.tokenizer.getCurrentToken() == "static"):
             self.process("static")
             self.process(self.tokenizer.getCurrentToken())
-            while (self.tokenizer.getNextToken() == ","):
-                self.process(self.tokenizer.getCurrentToken())
-                self.process(",")
-            self.process(self.tokenizer.getCurrentToken())
-            self.process(";")
         elif (self.tokenizer.getCurrentToken() == "field"):
             self.process("field")
             self.process(self.tokenizer.getCurrentToken())
-            while (self.tokenizer.getNextToken() == ","):
-                self.process(self.tokenizer.getCurrentToken())
-                self.process(",")
-            self.process(self.tokenizer.getCurrentToken())
-            self.process(";")
         else:
             print("compileClassVarDec: syntax error")
+
+        while (self.tokenizer.getNextToken() == ","):
+            self.process(self.tokenizer.getCurrentToken())
+            self.process(",")
+        self.process(self.tokenizer.getCurrentToken())
+        self.process(";")
     
     def compileSubroutine(self):
-        pass
+        if (self.tokenizer.getCurrentToken() == "constructor"):
+            self.process("constructor")
+        elif (self.tokenizer.getCurrentToken() == "function"):
+            self.process("function")
+        elif (self.tokenizer.getCurrentToken() == "method"):
+            self.process("method")
+        else:
+            print("compileSubroutine: syntax error")
+
+        self.process(self.tokenizer.getCurrentToken())
+        self.process(self.tokenizer.getCurrentToken())
+
+        self.compileExpressionList()
     
     def compileParameterList(self):
         pass

@@ -45,7 +45,7 @@ symbols = ["{","}","(",")","[","]",".",",",";","+","-","*","/","&","|","<",">","
 class_var_decs = ["static","field"]
 types = ["int","char","boolean"]
 subroutine_decs = ["constructor", "function", "method"]
-statements = ["let", "if", "else", "while", "do", "return"]
+statements = ["let", "if", "while", "do", "return"]
 ops = ["+", "-", "*", "/", "&", "|", "<", ">", "="]
 unary_ops = ["-", "~"]
 keyword_constants = ["true", "false", "null", "this"]
@@ -66,12 +66,12 @@ class JackTokenizer():
     def tokenize(self):
         
         # remove comments
-        while ("/**" in self.data):
+        while "/**" in self.data:
             i = self.data.find("/**")
             j = self.data.find("*/")
             self.data = self.data[:i] + self.data[(j+2):]
 
-        while ("//" in self.data):
+        while "//" in self.data:
             i = self.data.find("//")
             j = self.data[(i+2):].find("\n")
             self.data = self.data[:i] + self.data[(i+j+2):]
@@ -89,7 +89,7 @@ class JackTokenizer():
         self.currentToken = tokens[0]
         
     def hasMoreTokens(self):
-        return (self.i < len(self.tokens))
+        return self.i < len(self.tokens)
     
     def advance(self):
         self.currentToken = self.tokens[self.i+1]
@@ -100,7 +100,7 @@ class JackTokenizer():
         return self.currentToken
 
     def getNextToken(self):
-        if (self.i+1 < len(self.tokens)):
+        if self.i+1 < len(self.tokens):
             return self.tokens[self.i+1]
         else:
             return ""
@@ -171,6 +171,8 @@ class CompilationEngine():
     outp = None
     tokenizer = None
     
+    ind = ""
+    
     def __init__(self, inp, outp):
 
         self.outp = open(outp, 'w')
@@ -185,29 +187,55 @@ class CompilationEngine():
         print(s,"  ~~  ", self.tokenizer.getCurrentToken())
         print()
         
-        if (s == self.tokenizer.getCurrentToken()):
-            self.write("<" + self.tokenizer.tokenType() + "> ")
-            self.write(self.tokenizer.getCurrentToken())
-            self.write(" </" + self.tokenizer.tokenType() + ">")
-            self.write("\n")
+        if s == self.tokenizer.getCurrentToken():
+            
+            self.write("<{}> {} </{}>\n".format(self.tokenizer.tokenType(),
+                                                self.tokenizer.getCurrentToken(),
+                                                self.tokenizer.tokenType()),
+                                                False)
+            '''
+            self.write("<" + self.tokenizer.tokenType() + "> " +
+                       self.tokenizer.getCurrentToken() 
+                       " </" + self.tokenizer.tokenType() + ">\n") '''
         else:
             print("process: syntax error")
 
         self.tokenizer.advance()
 
-    def write(self, s):
-        self.outp.write(s)
+    def write(self, s, indent = True):
+        
+        inc = ""
+        
+        if indent:
+            if (len(s) > 1) and (s[1] == "/"):
+                self.ind = self.ind[:-2]
+            else:
+                inc = "  "
+        
+        self.outp.write(self.ind + s)
+        
+        self.ind += inc
+
+    def compileIntegerConstant(self):
+        if (self.tokenizer.intVal()):
+            self.process(self.tokenizer.getCurrentToken())
+        else:
+            print("compileIdentifier: syntax error")
+
+    def compileStringConstant(self):
+        if (self.tokenizer.stringVal()):
+            self.process(self.tokenizer.getCurrentToken())
+        else:
+            print("compileIdentifier: syntax error")
     
     def compileKeyword(self):
-        print(self.tokenizer.getCurrentToken())
-        print(self.tokenizer.tokenType())
-        if (self.tokenizer.keyword()):
+        if self.tokenizer.keyword():
             self.process(self.tokenizer.getCurrentToken())
         else:
             print("compileKeyword: syntax error")
             
     def compileSymbol(self):
-        if (self.tokenizer.symbol()):
+        if self.tokenizer.symbol():
             self.process(self.tokenizer.getCurrentToken())
         else:
             print("compileSymbol: syntax error")
@@ -218,22 +246,27 @@ class CompilationEngine():
         else:
             print("compileIdentifier: syntax error")
     
+    def compileType(self):
+        if self.tokenizer.getCurrentToken() in types:
+            self.compileKeyword()
+        elif self.tokenizer.identifier():
+            self.compileIdentifier()
+        else:
+            print("compileType: syntax error")
+                
     def compileClass(self):
         print(self.tokenizer.tokens)
         
         self.write("<class>\n")
-        # self.process("class")
-        # self.process(self.tokenizer.getCurrentToken())
-        # self.process("{")
         
         self.compileKeyword() # class
-        self.compileIdentifier() # name of class
+        self.compileIdentifier() # class name
         self.compileSymbol() # {
 
-        while (self.tokenizer.getCurrentToken() in class_var_decs):
+        while self.tokenizer.getCurrentToken() in class_var_decs:
             self.compileClassVarDec()
 
-        while (self.tokenizer.getCurrentToken() in subroutine_decs):
+        while self.tokenizer.getCurrentToken() in subroutine_decs:
             self.compileSubroutine()
 
         self.compileSymbol() # "}"
@@ -244,7 +277,7 @@ class CompilationEngine():
         
         self.write("<classVarDec>\n")
         
-        if (self.tokenizer.getCurrentToken() in class_var_decs):
+        if self.tokenizer.getCurrentToken() in class_var_decs:
             self.compileKeyword()
             self.compileKeyword()
         else:
@@ -262,35 +295,33 @@ class CompilationEngine():
         
         self.write("<subroutineDec>\n")
         
-        if (self.tokenizer.getCurrentToken() in subroutine_decs):
+        if self.tokenizer.getCurrentToken() in subroutine_decs:
             self.compileKeyword()
         else:
             print("compileSubroutine: syntax error")
 
-        self.compileIdentifier()
-        self.compileIdentifier()
+        self.compileType() # type
+        self.compileIdentifier() # subroutine name
         
         self.compileSymbol() # (
         self.compileParameterList()
         self.compileSymbol() # )
         
-        self.compileSymbol() # {
         self.compileSubroutineBody()
-        self.compileSymbol() # }
         
         self.write("</subroutineDec>\n")
     
     def compileParameterList(self):
         
-        self.write("</parameterList>\n")
+        self.write("<parameterList>\n")
         
-        if (self.tokenizer.getCurrentToken() != ")"):
-            self.compileKeyword()
+        if self.tokenizer.getCurrentToken() != ")":
+            self.compileType() # type
             self.compileIdentifier()
             
-            while (self.tokenizer.getCurrentToken() != ")"):
+            while self.tokenizer.getCurrentToken() != ")":
                 self.compileSymbol() # ,
-                self.compileKeyword()
+                self.compileType() # type
                 self.compileIdentifier()
         
         self.write("</parameterList>\n")
@@ -298,13 +329,55 @@ class CompilationEngine():
     def compileSubroutineBody(self):
         
         self.write("<subroutineBody>\n")
+        
+        self.compileSymbol() # {
+        
+        while (self.tokenizer.getCurrentToken() == "var"):
+            self.compileVarDec()
+        
+        self.compileStatements()
+        
+        self.compileSymbol() # }
+        
         self.write("</subroutineBody>\n")
     
     def compileVarDec(self):
-        pass
+        
+        self.write("<varDec>\n")
+        
+        self.compileKeyword() # var
+        self.compileType()
+        self.compileIdentifier()
+        
+        while self.tokenizer.getCurrentToken() == ",":
+            self.compileSymbol() # ,
+            self.compileIdentifier()
+        
+        self.compileSymbol() # ;
+        
+        self.write("</varDec>\n")
     
     def compileStatements(self):
-        pass
+        
+        self.write("<statements>\n")
+        
+        statement = self.tokenizer.getCurrentToken()
+        while statement in statements:
+            match statement:
+                case "let":
+                    self.compileLet()
+                case "if":
+                    self.compileIf()
+                case "while":
+                    self.compileWhile()
+                case "do":
+                    self.compileDo()
+                case "return":
+                    self.compileReturn()
+                
+            statement = self.tokenizer.getCurrentToken()
+        
+        self.write("</statements>\n")
     
     def compileLet(self):
         pass
@@ -319,14 +392,47 @@ class CompilationEngine():
         pass
     
     def compileReturn(self):
-        pass
+        
+        self.write("<returnStatement>\n")
+        
+        if self.tokenizer.getCurrentToken() == "return":
+            self.compileKeyword() # return
+            if self.tokenizer.getCurrentToken() != ";":
+                self.compileExpression()
+            self.compileSymbol() # ;
+        else:
+            print("compileReturn: syntax error")
+        
+        self.write("</returnStatement>\n")
     
     def compileExpression(self):
-        pass
+        
+        self.write("<expression>\n")
+        
+        self.compileTerm()
+        if self.tokenizer.getCurrentToken() in ops:
+            self.compileSymbol()
+            self.compileTerm()
+        
+        self.write("</expression>\n")
     
     def compileTerm(self):
-        pass
-    
+        
+        self.write("<term>\n")
+        
+        statement = self.tokenizer.tokenType()
+        match statement:
+            case "integerConstant":
+                self.compileIntegerConstant()
+            case "stringConstant":
+                self.compileStringConstant()
+            case "keyword":
+                self.compileKeyword()
+            case "identifier":
+                self.compileIdentifier()
+        
+        self.write("</term>\n")
+        
     def compileExpressionList(self):
         pass
     
